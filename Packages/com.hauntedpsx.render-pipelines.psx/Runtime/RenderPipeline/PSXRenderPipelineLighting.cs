@@ -335,7 +335,7 @@ namespace HauntedPSX.RenderPipelines.PSX.Runtime
                         lightData.Init(ref discLight);
                         break;
                     default:
-                        lightData.InitNoBake(light.GetInstanceID());
+                        lightData.InitNoBake(light.GetEntityId());
                         break;
                 }
 
@@ -367,7 +367,7 @@ namespace HauntedPSX.RenderPipelines.PSX.Runtime
             for (int i = 0; i < requests.Length; i++)
             {
                 Light light = requests[i];
-                lightData.InitNoBake(light.GetInstanceID());
+                lightData.InitNoBake(light.GetEntityId());
                 lightsOutput[i] = lightData;
             }
             Debug.LogWarning("Realtime GI is not supported in HPSXRP.");

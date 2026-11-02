@@ -95,8 +95,6 @@ public class OSCObjectController : MonoBehaviour
         sonette.material.color = Mathf.Approximately(value, 1f)
             ? Color.red
             : originalSonetteColor;
-
-        Debug.Log("Sonette: " + value);
     }
 
     void OnReceiveCode(OSCMessage message)
@@ -109,8 +107,6 @@ public class OSCObjectController : MonoBehaviour
         code.material.color = Mathf.Approximately(value, 1f)
             ? Color.red
             : originalCodeColor;
-
-        Debug.Log("Code: " + value);
     }
 
     void OnReceiveRotation(OSCMessage message)
@@ -123,8 +119,6 @@ public class OSCObjectController : MonoBehaviour
             -1f,
             1f
         );
-
-        Debug.Log("Rotation: " + targetValue);
     }
 
     void Update()

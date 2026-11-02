@@ -70,7 +70,7 @@ namespace extOSC.Editor
 
 		public static void FindObjects<T>(Func<T, string> namingCallback, bool withNone, out GUIContent[] contents, out T[] objects) where T : Object
 		{
-			var sceneObjects = Object.FindObjectsOfType<T>();
+			var sceneObjects = Object.FindObjectsByType<T>(FindObjectsSortMode.None);
 			var offset = 0;
 			var count = sceneObjects.Length;
 
@@ -101,7 +101,7 @@ namespace extOSC.Editor
 
 		public static OSCReceiver FindReceiver(int localPort)
 		{
-			var receivers = Object.FindObjectsOfType<OSCReceiver>();
+			var receivers = Object.FindObjectsByType<OSCReceiver>(FindObjectsSortMode.None);
 
 			foreach (var receiver in receivers)
 			{
@@ -114,7 +114,7 @@ namespace extOSC.Editor
 
 		public static OSCTransmitter FindTransmitter(string remoteHost, int remotePort)
 		{
-			var transmitters = Object.FindObjectsOfType<OSCTransmitter>();
+			var transmitters = Object.FindObjectsByType<OSCTransmitter>(FindObjectsSortMode.None);
 
 			foreach (var transmitter in transmitters)
 			{

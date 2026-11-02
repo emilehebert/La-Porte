@@ -114,8 +114,8 @@ namespace extOSC.Editor.Panels
 
 		public void Refresh()
 		{
-			_transmitters = Object.FindObjectsOfType<OSCTransmitter>();
-			_receivers = Object.FindObjectsOfType<OSCReceiver>();
+			_transmitters = Object.FindObjectsByType<OSCTransmitter>(FindObjectsSortMode.None);
+			_receivers = Object.FindObjectsByType<OSCReceiver>(FindObjectsSortMode.None);
 		}
 
 		#endregion

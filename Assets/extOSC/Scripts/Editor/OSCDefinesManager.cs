@@ -1,6 +1,7 @@
 ﻿/* Copyright (c) 2020 ExT (V.Sigalkin) */
 
 using UnityEditor;
+using UnityEditor.Build;
 
 using System;
 
@@ -34,7 +35,11 @@ namespace extOSC.Editor
 			{
 				if (!CheckBuildTarget(targetGroup)) continue;
 
-				var scriptingDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
+				NamedBuildTarget namedTarget;
+				try { namedTarget = NamedBuildTarget.FromBuildTargetGroup(targetGroup); }
+				catch (ArgumentException) { continue; }
+
+				var scriptingDefines = PlayerSettings.GetScriptingDefineSymbols(namedTarget);
 				if (!scriptingDefines.Contains(define) && active)
 				{
 					scriptingDefines += ";" + define;
@@ -44,7 +49,7 @@ namespace extOSC.Editor
 					scriptingDefines = scriptingDefines.Replace(define, string.Empty);
 				}
 
-				PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, scriptingDefines);
+				PlayerSettings.SetScriptingDefineSymbols(namedTarget, scriptingDefines);
 			}
 		}
 
@@ -54,7 +59,7 @@ namespace extOSC.Editor
 			var currentBuildTarget = EditorUserBuildSettings.selectedBuildTargetGroup;
 
 			// Check.
-			return PlayerSettings.GetScriptingDefineSymbolsForGroup(currentBuildTarget).Contains(define);
+			return PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(currentBuildTarget)).Contains(define);
 		}
 
 		#endregion

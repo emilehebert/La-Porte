@@ -25,7 +25,7 @@ namespace extOSC.Editor
 		{
 			if (OSCEditorTextures.IronWall == null) return;
 
-			var gameObject = EditorUtility.InstanceIDToObject(instanceId) as GameObject;
+			var gameObject = EditorUtility.EntityIdToObject(instanceId) as GameObject;
 			if (gameObject == null) return;
 
 			var oscBase = gameObject.GetComponent<OSCBase>();

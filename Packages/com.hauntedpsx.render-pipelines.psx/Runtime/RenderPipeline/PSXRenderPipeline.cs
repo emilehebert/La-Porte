@@ -47,9 +47,27 @@ namespace HauntedPSX.RenderPipelines.PSX.Runtime
         static void InitializeVolumeManager()
         {
 #if UNITY_2023_2_OR_NEWER
-            if (!VolumeManager.instance.isInitialized) { VolumeManager.instance.Initialize(); }
+            // In player builds, VolumeManager only registers the VolumeComponent types found in the global default profile
+            // (in the editor it uses reflection instead). Without one, no PSX volume overrides are ever applied in builds.
+            if (!VolumeManager.instance.isInitialized) { VolumeManager.instance.Initialize(CreateGlobalDefaultVolumeProfile()); }
 #endif
         }
+
+#if UNITY_2023_2_OR_NEWER
+        static VolumeProfile CreateGlobalDefaultVolumeProfile()
+        {
+            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            profile.hideFlags = HideFlags.HideAndDontSave;
+            foreach (var type in typeof(PSXRenderPipeline).Assembly.GetTypes())
+            {
+                if (type.IsAbstract || !type.IsSubclassOf(typeof(VolumeComponent))) { continue; }
+
+                // overrides: false keeps each component's own default values.
+                profile.Add(type, overrides: false);
+            }
+            return profile;
+        }
+#endif
 
         static void DeinitializeVolumeManager()
         {

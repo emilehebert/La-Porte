@@ -25,9 +25,9 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 0.081568174, g: 0.09319269, b: 0.122641504, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
-  m_HaloStrength: 0.5
+  m_HaloStrength: 0.489
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 1e2e5653212f56e438fc6b1ea7ed994b, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: a7eb82ab7c476714caff52b3f78cbf0a, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -258,9 +258,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.9528302, g: 0.80001783, b: 0.4179868, a: 1}
+  m_Color: {r: 1, g: 0.8850236, b: 0.5990566, a: 1}
   m_Intensity: 0
-  m_Range: 5
+  m_Range: 0.92
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -694,9 +694,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.9528302, g: 0.80001783, b: 0.4179868, a: 1}
+  m_Color: {r: 1, g: 0.8850236, b: 0.5990566, a: 1}
   m_Intensity: 0
-  m_Range: 5
+  m_Range: 0.92
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -938,9 +938,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.9528302, g: 0.80001783, b: 0.4179868, a: 1}
+  m_Color: {r: 1, g: 0.8850236, b: 0.5990566, a: 1}
   m_Intensity: 0
-  m_Range: 5
+  m_Range: 0.92
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -1258,9 +1258,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.9528302, g: 0.80001783, b: 0.4179868, a: 1}
+  m_Color: {r: 1, g: 0.8850236, b: 0.5990566, a: 1}
   m_Intensity: 1
-  m_Range: 5
+  m_Range: 0.92
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
@@ -1370,9 +1370,9 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.9528302, g: 0.80001783, b: 0.4179868, a: 1}
+  m_Color: {r: 1, g: 0.8850236, b: 0.5990566, a: 1}
   m_Intensity: 0
-  m_Range: 5
+  m_Range: 0.92
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}

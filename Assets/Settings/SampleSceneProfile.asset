@@ -181,7 +181,7 @@ MonoBehaviour:
     m_Value: 256
   targetRasterizationResolutionHeight:
     m_OverrideState: 1
-    m_Value: 570
+    m_Value: 1919
   isDepthBufferEnabled:
     m_OverrideState: 1
     m_Value: 1

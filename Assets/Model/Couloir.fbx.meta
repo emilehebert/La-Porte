@@ -27,6 +27,21 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Drawers
+    second: {fileID: 2100000, guid: 18f54825e57d08d4b80d0027fe9bbbef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Electronics
+    second: {fileID: 2100000, guid: 3cb03e830c7d028499cb2e081ad9dee7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Fridge
+    second: {fileID: 2100000, guid: 8bddd272fa145744395330a6bc2440eb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Lamp
     second: {fileID: 2100000, guid: 7f495c36f44f52147a3b5f0ac13ff27d, type: 2}
   - first:
@@ -34,6 +49,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Metal
     second: {fileID: 2100000, guid: 1342d66bf42c9994eb561e3971f36e92, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Oven
+    second: {fileID: 2100000, guid: 1ceb10d9fe8854a4f9377a574665b2cc, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

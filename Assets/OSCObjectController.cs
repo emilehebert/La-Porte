@@ -19,6 +19,11 @@ public class OSCObjectController : MonoBehaviour
     private int sonettePressed = 0;
     private int knockDebug = 0;
 
+
+    public GameObject Light1;
+    public GameObject Light2;
+    public GameObject Light3;
+
     public Color[] lampColors = new Color[]
     {
         new Color(0.20f, 0.45f, 0.85f), // Blue
@@ -26,6 +31,14 @@ public class OSCObjectController : MonoBehaviour
         new Color(0.25f, 0.75f, 0.45f), // Green
         new Color(0.95f, 0.75f, 0.20f), // Yellow
         new Color(0.65f, 0.35f, 0.85f)  // Purple
+    };
+
+    public Color[] HeaderColorPattern = new Color[]
+    {
+        new Color(0.20f, 0.45f, 0.85f), // Blue
+        new Color(0.25f, 0.75f, 0.45f), // Green
+        new Color(0.90f, 0.25f, 0.25f) // Red
+
     };
     private int lampIndex = 0;
 
@@ -235,6 +248,32 @@ public class OSCObjectController : MonoBehaviour
         await Task.Delay(200); // Wait 2 seconds
 
         knockDebug = 0;
+    }
+
+
+     async void ConfirmLights(){
+
+         Color myRgbColor = new Color(
+                255f / 255f,
+                247f / 255f,
+                227f / 255f
+            );
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            // Actual Unity Light intensity: 0 to maxIntensity
+            lights[i].color = myRgbColor;
+             await Task.Delay(200); // Wait 2 seconds
+        }
+
+         await Task.Delay(2000); // Wait 2 seconds
+
+        Light1.GetComponent<Light>().color = HeaderColorPattern[0];
+         await Task.Delay(200); // Wait 2 seconds
+        Light2.GetComponent<Light>().color = HeaderColorPattern[1];
+         await Task.Delay(200); // Wait 2 seconds
+        Light3.GetComponent<Light>().color = HeaderColorPattern[2];
+        
     }
 }
 

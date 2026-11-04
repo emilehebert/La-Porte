@@ -1118,13 +1118,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621971023}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.022922575, y: -0.7813254, z: -0.030749634, w: -0.62294436}
-  m_LocalPosition: {x: -0.058999714, y: 1.611, z: -0.45800012}
+  m_LocalRotation: {x: -0.035912268, y: -0.3202184, z: -0.0134645365, w: -0.9465671}
+  m_LocalPosition: {x: -0.058999732, y: 1.611, z: -0.45800018}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -1.117, y: 102.828, z: 4.252}
+  m_LocalEulerAnglesHint: {x: 3.403, y: 37.464, z: 2.784}
 --- !u!1 &894551424
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,12 +2248,19 @@ MonoBehaviour:
   receiver: {fileID: 2056286662}
   lampe: {fileID: 1994404167}
   lightsParent: {fileID: 233473797}
+  Light1: {fileID: 894551424}
+  Light2: {fileID: 166071988}
+  Light3: {fileID: 295457575}
   lampColors:
   - {r: 0.2, g: 0.45, b: 0.85, a: 1}
   - {r: 0.9, g: 0.25, b: 0.25, a: 1}
-  - {r: 0.2601625, g: 0.46226418, b: 0.10684408, a: 1}
+  - {r: 0.42857146, g: 1, b: 0, a: 1}
   - {r: 0.95, g: 0.75, b: 0.2, a: 1}
   - {r: 1, g: 0, b: 0.65080976, a: 1}
+  HeaderColorPattern:
+  - {r: 0.2, g: 0.45, b: 0.85, a: 1}
+  - {r: 0.25, g: 0.75, b: 0.45, a: 1}
+  - {r: 0.9, g: 0.25, b: 0.25, a: 1}
   maxIntensity: 1
   gradientWidth: 1.5
   movementSpeed: 4

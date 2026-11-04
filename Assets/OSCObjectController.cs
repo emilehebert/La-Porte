@@ -1,8 +1,10 @@
-
 using UnityEngine;
 using extOSC;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+    
 
 public class OSCObjectController : MonoBehaviour
 {
@@ -10,17 +12,42 @@ public class OSCObjectController : MonoBehaviour
     public OSCReceiver receiver;
 
     [Header("Objects")]
-    public Renderer sonette;
-    public Renderer code;
+
+    public GameObject lampe;
     public Transform lightsParent;
+    private int sonettePressed = 0;
+    private int knockDebug = 0;
+
+
+    public GameObject Light1;
+    public GameObject Light2;
+    public GameObject Light3;
+
+    public Color[] lampColors = new Color[]
+    {
+        new Color(0.20f, 0.45f, 0.85f), // Blue
+        new Color(0.90f, 0.25f, 0.25f), // Red
+        new Color(0.25f, 0.75f, 0.45f), // Green
+        new Color(0.95f, 0.75f, 0.20f), // Yellow
+        new Color(0.65f, 0.35f, 0.85f)  // Purple
+    };
+
+    public Color[] HeaderColorPattern = new Color[]
+    {
+        new Color(0.20f, 0.45f, 0.85f), // Blue
+        new Color(0.25f, 0.75f, 0.45f), // Green
+        new Color(0.90f, 0.25f, 0.25f) // Red
+
+    };
+    private int lampIndex = 0;
 
     private Color originalSonetteColor;
     private Color originalCodeColor;
 
     [Header("Light Gradient")]
-    public float maxIntensity = 100f;
+    public float maxIntensity = 1f;
     public float gradientWidth = 1.5f;
-    public float movementSpeed = 8f;
+    public float movementSpeed = 4f;
 
     private Light[] lights;
 
@@ -29,12 +56,7 @@ public class OSCObjectController : MonoBehaviour
 
     void Start()
     {
-        // Store original object colors
-        if (sonette != null)
-            originalSonetteColor = sonette.material.color;
 
-        if (code != null)
-            originalCodeColor = code.material.color;
 
         // Register OSC addresses
         if (receiver == null)
@@ -45,6 +67,7 @@ public class OSCObjectController : MonoBehaviour
         }
 
         receiver.Bind("/sonette", OnReceiveSonette);
+        receiver.Bind("/vibration", OnReceiveVibration);
         receiver.Bind("/code", OnReceiveCode);
         receiver.Bind("/rotation", OnReceiveRotation);
 
@@ -87,26 +110,87 @@ public class OSCObjectController : MonoBehaviour
 
     void OnReceiveSonette(OSCMessage message)
     {
-        if (message.Values.Count == 0 || sonette == null)
+
+        
+        if (message.Values.Count == 0 ){
             return;
-
+        }
+            
         float value = message.Values[0].FloatValue;
+        Debug.Log(sonettePressed);
+        Debug.Log(value);
+        if(sonettePressed == 1 && value == 0){
+            sonettePressed = 0;
+        }
+        
 
-        sonette.material.color = Mathf.Approximately(value, 1f)
-            ? Color.red
-            : originalSonetteColor;
+        if(sonettePressed == 0 && value == 1){
+            sonettePressed = 1;
+            if(lampIndex < lampColors.Length -1 ){
+                lampIndex += 1;
+                
+            }else
+            {
+                lampIndex = 0;
+            }
+        }
+
+
+
+        lampe.GetComponent<Light>().color = lampColors[lampIndex];
+
+        
+    }
+
+
+        void OnReceiveVibration(OSCMessage message)
+    {
+
+        
+        if (message.Values.Count == 0 ){
+            return;
+        }
+
+        if(knockDebug == 1){
+            return;
+        }
+            
+        float value = message.Values[0].FloatValue;
+        Debug.Log(sonettePressed);
+        Debug.Log(value);
+        if(sonettePressed == 1 && value == 0){
+            sonettePressed = 0;
+        }
+        
+
+        if(sonettePressed == 0 && value == 1){
+            sonettePressed = 1;
+            if(lampIndex < lampColors.Length -1 ){
+                lampIndex += 1;
+                
+            }else
+            {
+                lampIndex = 0;
+            }
+
+            DebugKnock();
+        }
+
+
+
+        lampe.GetComponent<Light>().color = lampColors[lampIndex];
+
+        
     }
 
     void OnReceiveCode(OSCMessage message)
     {
-        if (message.Values.Count == 0 || code == null)
+        if (message.Values.Count == 0 )
             return;
 
         float value = message.Values[0].FloatValue;
 
-        code.material.color = Mathf.Approximately(value, 1f)
-            ? Color.red
-            : originalCodeColor;
+        
     }
 
     void OnReceiveRotation(OSCMessage message)
@@ -153,5 +237,41 @@ public class OSCObjectController : MonoBehaviour
             // Actual Unity Light intensity: 0 to maxIntensity
             lights[i].intensity = intensity01 * maxIntensity;
         }
+    }
+
+    
+    async void DebugKnock()
+    {
+        knockDebug = 1;
+
+        await Task.Delay(200); // Wait 2 seconds
+
+        knockDebug = 0;
+    }
+
+
+     async void ConfirmLights(){
+
+         Color myRgbColor = new Color(
+                255f / 255f,
+                247f / 255f,
+                227f / 255f
+            );
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            // Actual Unity Light intensity: 0 to maxIntensity
+            lights[i].color = myRgbColor;
+             await Task.Delay(200); // Wait 2 seconds
+        }
+
+         await Task.Delay(2000); // Wait 2 seconds
+
+        Light1.GetComponent<Light>().color = HeaderColorPattern[0];
+         await Task.Delay(200); // Wait 2 seconds
+        Light2.GetComponent<Light>().color = HeaderColorPattern[1];
+         await Task.Delay(200); // Wait 2 seconds
+        Light3.GetComponent<Light>().color = HeaderColorPattern[2];
+        
     }
 }

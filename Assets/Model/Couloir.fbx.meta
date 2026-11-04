@@ -47,6 +47,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Lever
+    second: {fileID: 2100000, guid: aea853a1c32507046b656577a5d8cdb4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Metal
     second: {fileID: 2100000, guid: 1342d66bf42c9994eb561e3971f36e92, type: 2}
   - first:

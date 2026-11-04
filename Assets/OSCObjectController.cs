@@ -3,6 +3,9 @@ using UnityEngine;
 using extOSC;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+    
 
 public class OSCObjectController : MonoBehaviour
 {
@@ -14,6 +17,7 @@ public class OSCObjectController : MonoBehaviour
     public GameObject lampe;
     public Transform lightsParent;
     private int sonettePressed = 0;
+    private int knockDebug = 0;
 
     public Color[] lampColors = new Color[]
     {
@@ -51,6 +55,7 @@ public class OSCObjectController : MonoBehaviour
         }
 
         receiver.Bind("/sonette", OnReceiveSonette);
+        receiver.Bind("/vibration", OnReceiveVibration);
         receiver.Bind("/code", OnReceiveCode);
         receiver.Bind("/rotation", OnReceiveRotation);
 
@@ -125,6 +130,47 @@ public class OSCObjectController : MonoBehaviour
         
     }
 
+
+        void OnReceiveVibration(OSCMessage message)
+    {
+
+        
+        if (message.Values.Count == 0 ){
+            return;
+        }
+
+        if(knockDebug == 1){
+            return;
+        }
+            
+        float value = message.Values[0].FloatValue;
+        Debug.Log(sonettePressed);
+        Debug.Log(value);
+        if(sonettePressed == 1 && value == 0){
+            sonettePressed = 0;
+        }
+        
+
+        if(sonettePressed == 0 && value == 1){
+            sonettePressed = 1;
+            if(lampIndex < lampColors.Length -1 ){
+                lampIndex += 1;
+                
+            }else
+            {
+                lampIndex = 0;
+            }
+
+            DebugKnock();
+        }
+
+
+
+        lampe.GetComponent<Light>().color = lampColors[lampIndex];
+
+        
+    }
+
     void OnReceiveCode(OSCMessage message)
     {
         if (message.Values.Count == 0 )
@@ -180,4 +226,17 @@ public class OSCObjectController : MonoBehaviour
             lights[i].intensity = intensity01 * maxIntensity;
         }
     }
+
+    
+    async void DebugKnock()
+    {
+        knockDebug = 1;
+
+        await Task.Delay(200); // Wait 2 seconds
+
+        knockDebug = 0;
+    }
 }
+
+
+

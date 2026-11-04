@@ -118,27 +118,8 @@ public class OSCObjectController : MonoBehaviour
         }
             
         float value = message.Values[0].FloatValue;
-        Debug.Log(sonettePressed);
-        Debug.Log(value);
-        if(sonettePressed == 1 && value == 0){
-            sonettePressed = 0;
-        }
-        
 
-        if(sonettePressed == 0 && value == 1){
-            sonettePressed = 1;
-            if(lampIndex < lampColors.Length -1 ){
-                lampIndex += 1;
-                
-            }else
-            {
-                lampIndex = 0;
-            }
-        }
-
-
-
-        lampe.GetComponent<Light>().color = lampColors[lampIndex];
+        ConfirmLights();
 
         
     }

@@ -894,11 +894,11 @@ Transform:
   m_GameObject: {fileID: 551571970}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.228, y: -0.59899986, z: -27.895}
+  m_LocalPosition: {x: 2.228, y: 1.718, z: -3.8950005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1648761957}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &697867316
 GameObject:
@@ -992,7 +992,7 @@ Transform:
   m_GameObject: {fileID: 697867316}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 2.317, z: 1}
+  m_LocalPosition: {x: 6, y: 2.317, z: 11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1020,6 +1020,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 709102879}
+  - component: {fileID: 709102880}
   m_Layer: 0
   m_Name: Lights
   m_TagString: Untagged
@@ -1036,7 +1037,7 @@ Transform:
   m_GameObject: {fileID: 709102878}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.317, z: 24}
+  m_LocalPosition: {x: 0, y: 2.317, z: 34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1047,6 +1048,129 @@ Transform:
   - {fileID: 1990670080}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &709102880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709102878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f1b106596b49a343af983dbccb5883a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LumieresCorridor
+  lumieres:
+  - {fileID: 2111478328}
+  - {fileID: 101421387}
+  - {fileID: 1230263892}
+  - {fileID: 1131585505}
+  - {fileID: 1990670081}
+  lumieresDuCode:
+  - {fileID: 1230263892}
+  - {fileID: 101421387}
+  - {fileID: 2111478328}
+  couleurBlanche: {r: 1, g: 0.97, b: 0.89, a: 1}
+  intensiteMax: 1
+  largeurDegrade: 1.5
+  vitesse: 4
+  inverserSens: 0
+--- !u!1 &718857962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 718857963}
+  - component: {fileID: 718857964}
+  m_Layer: 0
+  m_Name: 0 - Attente des joueurs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &718857963
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718857962}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1197051987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &718857964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718857962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7be5bf970734e72419abec21155db0e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EtapeAttente
+  note: "Tout est remis \xE0 neuf. D\xE9marre au premier contact."
+  demarrerAuPremierContact: 1
+  adresseOscPorte: 
+--- !u!1 &838801785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 838801786}
+  - component: {fileID: 838801787}
+  m_Layer: 0
+  m_Name: 3 - Code du numpad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &838801786
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838801785}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1197051987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &838801787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838801785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa78fdd58efdbf4696bbf04324c6fa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EtapeCodeNumpad
+  note: "Locataire d\xE9crit les t\xEAtes. Visiteur trouve les num\xE9ros dans le
+    journal."
+  sonTouche: {fileID: 0}
+  sonMauvaisCode: {fileID: 0}
+  sonBonCode: {fileID: 0}
 --- !u!1 &955368941
 GameObject:
   m_ObjectHideFlags: 0
@@ -1218,7 +1342,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1049546824}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28317f5e071b77c41876dedc85c5b5f6, type: 3}
   m_Name: 
@@ -1373,6 +1497,132 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1197051981
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1197051987}
+  - component: {fileID: 1197051986}
+  - component: {fileID: 1197051985}
+  - component: {fileID: 1197051984}
+  - component: {fileID: 1197051983}
+  - component: {fileID: 1197051982}
+  m_Layer: 0
+  m_Name: Jeu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1197051982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e98eda1c7a5bda8448b35b3796b136a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActiverEcrans
+--- !u!114 &1197051983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8a181b046fcbc04489ca281d01d168b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanneauOperateur
+  simulationClavier: 1
+  vitessePoignee: 1.5
+--- !u!114 &1197051984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fa9532ed77a14b4e89052977b2aba86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GestionnaireEtapes
+  minutesInactiviteAvantRetour: 10
+--- !u!114 &1197051985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b34b399b9337a0e43b77a05be7095eed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ReglagesJeu
+  couleursLampe:
+  - nom: Bleu
+    couleur: {r: 0.2, g: 0.45, b: 0.85, a: 1}
+  - nom: Rouge
+    couleur: {r: 0.9, g: 0.25, b: 0.25, a: 1}
+  - nom: Vert
+    couleur: {r: 0.25, g: 0.75, b: 0.45, a: 1}
+  - nom: Jaune
+    couleur: {r: 0.95, g: 0.75, b: 0.2, a: 1}
+  - nom: Mauve
+    couleur: {r: 0.65, g: 0.35, b: 0.85, a: 1}
+  ordreCouleurs: 000000000200000001000000
+  codeNumpad: 1234
+--- !u!114 &1197051986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f8245c7cf1202d40bfb10d23b64deca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Capteurs
+  recepteur: {fileID: 1049546826}
+  transmetteur: {fileID: 0}
+  adressePoignee: /rotation
+  adresseSonnette: /sonette
+  adresseHeurtoir: /vibration
+  adresseInterrupteur: /switch
+  adresseNumpad: /code
+  delaiHeurtoir: 0.25
+  delaiSonnette: 0.3
+--- !u!4 &1197051987
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197051981}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 718857963}
+  - {fileID: 1669985166}
+  - {fileID: 1759104292}
+  - {fileID: 838801786}
+  - {fileID: 1750350232}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1214874454
 GameObject:
   m_ObjectHideFlags: 0
@@ -1772,12 +2022,11 @@ Transform:
   m_GameObject: {fileID: 1648761956}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.317, z: 24}
+  m_LocalPosition: {x: 0, y: 2.317, z: 34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1042727847}
-  - {fileID: 551571972}
   - {fileID: 1493863247}
   - {fileID: 235645692}
   - {fileID: 365945330}
@@ -1913,6 +2162,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8934777400606672865, guid: 986e509de3640654a98a0e8d40abb844, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1659722790}
+    - targetCorrespondingSourceObject: {fileID: 8934777400606672865, guid: 986e509de3640654a98a0e8d40abb844, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1659722793}
   m_SourcePrefab: {fileID: 100100000, guid: 986e509de3640654a98a0e8d40abb844, type: 3}
 --- !u!4 &1659722781 stripped
 Transform:
@@ -2016,6 +2268,118 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &1659722793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 196119261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d073b329b5e0353488d178fcf0194bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LampeSurPied
+  lumiere: {fileID: 1659722790}
+--- !u!1 &1669985165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1669985166}
+  - component: {fileID: 1669985167}
+  m_Layer: 0
+  m_Name: "1 - \xC9nigme des couleurs"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1669985166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669985165}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1197051987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1669985167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669985165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 164cfcb579fa1f941a7bfb9dec3e95c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EtapeEnigmeCouleurs
+  note: "Locataire : poign\xE9e + interrupteur. Visiteur : heurtoir (couleur) + sonnette
+    (s\xE9lection)."
+  lampe: {fileID: 1659722793}
+  sonBonneCouleur: {fileID: 0}
+  sonMauvaiseCouleur: {fileID: 0}
+  sonReussite: {fileID: 0}
+--- !u!1 &1750350231
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1750350232}
+  - component: {fileID: 1750350233}
+  m_Layer: 0
+  m_Name: 4 - Porte ouverte
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1750350232
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750350231}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1197051987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1750350233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750350231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1a867864d27644fbdbcc9b9e4af06a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EtapeFin
+  note: "Fin. Retour automatique au d\xE9but."
+  timelineFin: {fileID: 0}
+  sonFin: {fileID: 0}
+  adresseOscPorte: 
+  secondesAvantRecommencer: 30
 --- !u!1 &1756539174
 GameObject:
   m_ObjectHideFlags: 0
@@ -2102,12 +2466,60 @@ Transform:
   m_GameObject: {fileID: 1756539174}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalPosition: {x: 0, y: 1.6, z: 10.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1759104291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1759104292}
+  - component: {fileID: 1759104293}
+  m_Layer: 0
+  m_Name: "2 - Indices (t\xEAtes + journal)"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1759104292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759104291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1197051987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1759104293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1759104291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb57408a18ea50469c2b5e0613cbc5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EtapeTimeline
+  note: "Les t\xEAtes tombent de la ventilation, le journal tombe sur la table."
+  timeline: {fileID: 0}
+  dureeSansTimeline: 3
+  attenteApres: 0
 --- !u!1 &1904239255
 GameObject:
   m_ObjectHideFlags: 0
@@ -2394,7 +2806,7 @@ Transform:
   m_GameObject: {fileID: 2020757209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6, y: 2.317, z: 1}
+  m_LocalPosition: {x: -6, y: 2.317, z: 11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2518,8 +2930,10 @@ SceneRoots:
   - {fileID: 1569480557}
   - {fileID: 1659722780}
   - {fileID: 955368943}
+  - {fileID: 551571972}
   - {fileID: 1648761957}
   - {fileID: 1049546827}
   - {fileID: 697867319}
   - {fileID: 2020757212}
   - {fileID: 709102879}
+  - {fileID: 1197051987}

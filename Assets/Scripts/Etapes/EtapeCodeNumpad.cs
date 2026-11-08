@@ -19,6 +19,13 @@ public class EtapeCodeNumpad : Etape
 
     string saisie = "";
 
+    /// <summary>Ce qui est tapé, complété par des tirets (ex. : « 12__ »).</summary>
+    public string SaisieAvecTirets =>
+        saisie + new string('_', Mathf.Max(0, ReglagesJeu.Instance.codeNumpad.Length - saisie.Length));
+
+    /// <summary>Time.time du dernier mauvais code (pour afficher « CODE FAUX » un moment).</summary>
+    public float HeureDerniereErreur { get; private set; } = -100f;
+
 
     protected override void Entrer()
     {
@@ -43,14 +50,12 @@ public class EtapeCodeNumpad : Etape
         {
             JouerSon(sonMauvaisCode);
             saisie = "";
+            HeureDerniereErreur = Time.time;
         }
     }
 
     public override string InfoOperateur()
     {
-        string code = ReglagesJeu.Instance.codeNumpad;
-        string tirets = new string('_', Mathf.Max(0, code.Length - saisie.Length));
-
-        return $"Saisi : {saisie}{tirets}\nCode : {code}";
+        return $"Saisi : {SaisieAvecTirets}\nCode : {ReglagesJeu.Instance.codeNumpad}";
     }
 }

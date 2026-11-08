@@ -13,6 +13,9 @@ public class EtapeFin : Etape
 
     public AudioSource sonFin;
 
+    [Tooltip("Objets cachés au départ, qui apparaissent quand la porte s'ouvre (ex. : le placeholder « PORTE OUVERTE »).")]
+    public GameObject[] objetsAAfficher;
+
     [Tooltip("Adresse OSC envoyée avec 1 pour déverrouiller la vraie porte. Laisser vide s'il n'y a pas de serrure électrique.")]
     public string adresseOscPorte = "";
 
@@ -24,6 +27,14 @@ public class EtapeFin : Etape
         Capteurs.EnvoyerOSC(adresseOscPorte, 1f);
         JouerSon(sonFin);
         if (timelineFin != null) timelineFin.Play();
+
+        if (objetsAAfficher != null)
+        {
+            foreach (GameObject objet in objetsAAfficher)
+            {
+                if (objet != null) objet.SetActive(true);
+            }
+        }
 
         StartCoroutine(AttendrePuisRecommencer());
     }

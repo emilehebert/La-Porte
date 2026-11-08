@@ -123,13 +123,43 @@ public class EtapeExemple : Etape
 
 ---
 
-## 7. Ce qui reste à décider ou à faire
+## 7. Placeholders de test (à remplacer)
+
+Menu **La Porte → Ajouter les placeholders de test** : ajoute des objets temporaires, rangés sous **`Placeholders (à remplacer)`**, pour que tout le jeu se teste du début à la fin.
+
+| Ce qui manque | Placeholder | Comment tester |
+|---|---|---|
+| Têtes (Partie A ét. 4) | 3 cubes **orange, cyan, rose** qui tombent de la ventilation (écran du corridor) | Réussir l'énigme des couleurs, ou Page Down |
+| Journal (Partie A ét. 4) | Cube blanc qui tombe de la bibliothèque sur la table (écran de la pièce) | Idem |
+| Pages floues (Partie B ét. X) | Texte jaune au-dessus du journal : lampe allumée = personnes 1, 3, 5, lampe fermée = 2, 4, 6 | Interrupteur (L) |
+| Retour du numpad | « CODE : 12__ » en bas de l'écran de la pièce, « CODE FAUX » si c'est mauvais | Chiffres 0 à 9 |
+| Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans | Bon code |
+| Sons | Des bips générés par le code (sous `Sons (bips)`) | Toutes les étapes |
+
+**Le code se lit dans le journal :** il est découpé entre les 3 têtes, dans l'ordre où elles tombent. Avec `1234` : ORANGE = 12, CYAN = 3, ROSE = 4. Si on change le code dans `ReglagesJeu`, le journal se met à jour tout seul.
+
+**Remplacer un placeholder :**
+
+- **Têtes et journal** : refaire l'animation dans la Timeline `Assets/Placeholders/Indices.playable` (ou en créer une nouvelle), l'assigner à l'étape « 2 - Indices », puis supprimer les cubes.
+- **Pages du journal** : mettre les deux vraies images sur `JournalPersonnages`, puis supprimer les textes.
+- **Sons** : glisser le vrai son dans l'*AudioClip* de l'AudioSource. Le bip ne joue plus automatiquement dès qu'un vrai son est là.
+- **Porte ouverte** : remplacer les objets dans `4 - Porte ouverte → Objets A Afficher` (ou utiliser une Timeline de fin).
+
+Quand tout est remplacé, supprimer `Placeholders (à remplacer)`, `Assets/Placeholders` et `Assets/Scripts/Placeholders`.
+
+> **À savoir :** l'écran de la pièce (Display 1) est filmé par **`Couloir → Camera Room`**, la caméra importée avec le modèle Blender (Depth 0). `Room Camera` (Depth −1) est dessinée en dessous, donc on ne la voit jamais, mais elle calcule quand même une image. À décider : garder l'une des deux et désactiver l'autre.
+
+---
+
+## 8. Ce qui reste à décider ou à faire
 
 - [ ] **TD** : envoyer l'interrupteur sur `/switch`. D'ici là, la lampe reste fermée avec le vrai matériel : utiliser la touche **L**.
 - [ ] **TD** : confirmer le format du numpad (un message par touche?).
 - [ ] Le **code du numpad** (`ReglagesJeu → codeNumpad`, `1234` pour l'instant).
 - [ ] Le **nombre de couleurs** de la combinaison, et quelles lumières du plafond les affichent. Repris de l'ancien code pour l'instant : light 3, light 2, light 1 = Bleu → Vert → Rouge.
 - [ ] Ce qui se passe quand le visiteur se **trompe de couleur**. Pour l'instant : 3 clignotements et on recommence au début de la combinaison.
-- [ ] Modéliser les **têtes** et le **journal**, puis faire la Timeline de l'étape 2. Sans Timeline, l'étape attend 3 s.
-- [ ] Les deux versions de la page du journal (floue A / B) pour `JournalPersonnages`.
+- [ ] Modéliser les **têtes** et le **journal**, et refaire la Timeline de l'étape 2 (placeholders en place pour l'instant).
+- [ ] Les deux versions de la page du journal (floue A / B) pour `JournalPersonnages` (placeholder texte pour l'instant).
+- [ ] La **porte qui s'ouvre** et les **sons** (placeholders pour l'instant).
+- [ ] Choisir la caméra de la pièce : `Camera Room` (Blender) ou `Room Camera`.
 - [ ] Une **serrure électrique**? Si oui, donner l'adresse OSC.

@@ -43,6 +43,8 @@ public class Capteurs : MonoBehaviour
     public float delaiHeurtoir = 0.25f;
     [Tooltip("Temps minimum entre deux coups de sonnette.")]
     public float delaiSonnette = 0.3f;
+    [Tooltip("Le même chiffre reçu de nouveau avant ce délai = la même touche (si TouchDesigner envoie en continu).")]
+    public float delaiNumpad = 0.1f;
 
 
     // ---------- Les événements que le jeu écoute ----------
@@ -80,6 +82,8 @@ public class Capteurs : MonoBehaviour
     static Capteurs instance;
     DetecteurAppui detecteurSonnette;
     DetecteurAppui detecteurHeurtoir;
+    int dernierChiffreRecu = -1;
+    float heureDernierChiffreRecu = -100f;
 
 
     void Awake()
@@ -102,7 +106,7 @@ public class Capteurs : MonoBehaviour
         recepteur.Bind("*", NoterPourLeMoniteur);   // "*" = toutes les adresses
         recepteur.Bind(adressePoignee, message => ChangerPoignee(LireNombre(message)));
         recepteur.Bind(adresseInterrupteur, message => ChangerInterrupteur(LireNombre(message) >= 0.5f));
-        recepteur.Bind(adresseNumpad, message => AppuyerNumpad(Mathf.RoundToInt(LireNombre(message))));
+        recepteur.Bind(adresseNumpad, message => RecevoirNumpad(Mathf.RoundToInt(LireNombre(message))));
 
         recepteur.Bind(adresseSonnette, message =>
         {
@@ -169,6 +173,20 @@ public class Capteurs : MonoBehaviour
 
 
     // ---------- Outils internes ----------
+
+    /// <summary>
+    /// Un chiffre reçu en OSC. Si TouchDesigner envoie en continu (5 5 5 5...),
+    /// la touche ne compte qu'une fois. Un message par touche (le format prévu) passe tel quel.
+    /// </summary>
+    void RecevoirNumpad(int chiffre)
+    {
+        bool memeTouche = chiffre == dernierChiffreRecu && Time.time - heureDernierChiffreRecu < delaiNumpad;
+
+        dernierChiffreRecu = chiffre;
+        heureDernierChiffreRecu = Time.time;
+
+        if (!memeTouche) AppuyerNumpad(chiffre);
+    }
 
     static void NoterContact()
     {

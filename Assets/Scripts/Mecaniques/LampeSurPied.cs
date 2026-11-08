@@ -6,6 +6,7 @@ using UnityEngine;
 ///
 ///  - Interrupteur : allume / ferme la lampe.
 ///  - Heurtoir : fait défiler les couleurs en boucle — seulement si la lampe est allumée.
+///    Au départ, la lampe est sur une couleur qui ne fait pas partie de la solution.
 ///  - La sonnette (sélection d'une couleur) est gérée par l'étape EtapeEnigmeCouleurs.
 ///
 /// Fonctionne tout le temps, peu importe l'étape.
@@ -41,7 +42,24 @@ public class LampeSurPied : MonoBehaviour
 
     void Start()
     {
+        IndexCouleur = CouleurDeDepart();
         Afficher();
+    }
+
+    /// <summary>
+    /// La première couleur qui ne fait PAS partie de la solution :
+    /// le visiteur ne peut pas réussir le 1er choix par hasard en sonnant tout de suite.
+    /// </summary>
+    int CouleurDeDepart()
+    {
+        ReglagesJeu reglages = ReglagesJeu.Instance;
+
+        for (int i = 0; i < reglages.couleursLampe.Length; i++)
+        {
+            if (System.Array.IndexOf(reglages.ordreCouleurs, i) < 0) return i;
+        }
+
+        return 0;   // toutes les couleurs font partie de la solution
     }
 
     void QuandInterrupteur(bool allume)

@@ -45,7 +45,7 @@ C'est la même logique que dans les escape rooms : les objets répondent tout le
 | # | Étape | Ce qui se passe | On passe à la suite quand… | Si l'opérateur saute l'étape |
 |---|---|---|---|---|
 | 0 | Attente des joueurs | Tout est remis à neuf. Les mécaniques marchent déjà. | Premier contact (sonnette, heurtoir, interrupteur, numpad) ou Page Down | — |
-| 1 | Énigme des couleurs (Partie A, ét. 1-3) | **Locataire** : poignée → lumières du corridor, interrupteur → révèle l'ordre des couleurs et allume la lampe. **Visiteur** : heurtoir → couleur suivante, sonnette → sélection. Mauvaise couleur : la lampe clignote 3 fois et on recommence. | Les couleurs sont sélectionnées dans le bon ordre | Rien à remettre |
+| 1 | Énigme des couleurs (Partie A, ét. 1-3) | **Locataire** : poignée → lumières du corridor, interrupteur → révèle l'ordre des couleurs et allume la lampe. **Visiteur** : heurtoir → couleur suivante, sonnette → sélection. La lampe commence sur une couleur qui n'est pas dans la solution. Mauvaise couleur : la lampe clignote 3 fois et on recommence. | Les couleurs sont sélectionnées dans le bon ordre | Rien à remettre |
 | 2 | Indices (Partie A, ét. 4) | Timeline : 3 têtes tombent de la ventilation (corridor), le journal tombe sur la table (pièce). | La Timeline est finie | La Timeline est mise à sa dernière image (têtes au sol) |
 | 3 | Code du numpad (Partie B) | Le locataire décrit les têtes, le visiteur trouve les numéros dans le journal. L'interrupteur inverse les personnages flous (`JournalPersonnages`). | Le bon code est entré | Rien à remettre |
 | 4 | Porte ouverte | Son / Timeline de fin, envoi OSC optionnel pour déverrouiller. | Après 30 s, l'expérience recommence au début | — |
@@ -84,6 +84,8 @@ Les adresses se changent dans l'Inspector (`Jeu → Capteurs`), sans toucher au 
 | **L** | Basculer l'interrupteur |
 | **← →** | Tourner la poignée |
 | **0 à 9** | Numpad |
+
+Les touches de simulation (S, H, L, ← →, 0 à 9) marchent **seulement quand le panneau F1 est ouvert**. Panneau fermé, quelqu'un qui tape sur le clavier n'agit pas sur le jeu.
 
 Dans le panneau F1, vous avez aussi :
 

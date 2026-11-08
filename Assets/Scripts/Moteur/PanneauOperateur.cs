@@ -11,12 +11,12 @@ using UnityEngine.InputSystem;
 ///   F5          rejouer l'étape actuelle depuis son début
 ///   Ctrl + R    recommencer toute l'expérience
 ///
-/// Simuler les capteurs (marche même panneau fermé) :
+/// Simuler les capteurs (seulement quand le panneau est ouvert, pour éviter les accidents) :
 ///   S sonnette · H heurtoir · L interrupteur · ← → poignée · 0 à 9 numpad
 /// </summary>
 public class PanneauOperateur : MonoBehaviour
 {
-    [Tooltip("Permet de simuler les capteurs avec le clavier (S, H, L, flèches, chiffres).")]
+    [Tooltip("Permet de simuler les capteurs avec le clavier (S, H, L, flèches, chiffres) quand le panneau F1 est ouvert.")]
     public bool simulationClavier = true;
 
     [Tooltip("Vitesse de la poignée simulée avec les flèches ← →.")]
@@ -54,7 +54,8 @@ public class PanneauOperateur : MonoBehaviour
         if (clavier.f5Key.wasPressedThisFrame) jeu.RejouerEtape();
         if (clavier.ctrlKey.isPressed && clavier.rKey.wasPressedThisFrame) jeu.Recommencer();
 
-        if (simulationClavier) SimulerCapteurs(clavier);
+        // Panneau fermé : quelqu'un qui tape sur le clavier ne peut pas agir sur le jeu.
+        if (simulationClavier && ouvert) SimulerCapteurs(clavier);
     }
 
     void SimulerCapteurs(Keyboard clavier)

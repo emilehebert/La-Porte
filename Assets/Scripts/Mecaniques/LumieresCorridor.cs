@@ -3,7 +3,8 @@ using UnityEngine;
 /// <summary>
 /// Les lumières au plafond du corridor (l'écran du LOCATAIRE).
 ///
-///  - Poignée : déplace la zone éclairée, de la porte jusqu'au fond du corridor.
+///  - Poignée au repos : la lumière la plus proche de la caméra du corridor est allumée.
+///    Poignée tournée (vers le haut OU vers le bas) : la zone éclairée avance vers le fond du corridor.
 ///  - Interrupteur fermé : lumières blanches.
 ///    Interrupteur allumé : un filtre de couleur révèle l'ordre de l'énigme (réglé dans ReglagesJeu).
 ///
@@ -12,8 +13,13 @@ using UnityEngine;
 /// </summary>
 public class LumieresCorridor : MonoBehaviour
 {
-    [Tooltip("Toutes les lumières du plafond, de la porte vers le fond du corridor.")]
+    [Tooltip("Toutes les lumières du plafond. L'ordre n'a pas d'importance si la caméra du corridor est assignée :\n" +
+             "elles sont triées de la plus proche à la plus loin de la caméra.")]
     public Light[] lumieres;
+
+    [Tooltip("La caméra du corridor. Au repos, c'est la lumière la plus proche d'elle qui est allumée.\n" +
+             "Vide = la première lumière de la liste est le point de départ.")]
+    public Transform cameraCorridor;
 
     [Tooltip("Les lumières qui montrent l'ordre des couleurs : 1re couleur, 2e couleur, etc.")]
     public Light[] lumieresDuCode;
@@ -29,10 +35,7 @@ public class LumieresCorridor : MonoBehaviour
     [Tooltip("Vitesse à laquelle la zone éclairée glisse vers la position de la poignée.")]
     public float vitesse = 4f;
 
-    [Tooltip("Cocher si la poignée éclaire le mauvais bout du corridor.")]
-    public bool inverserSens = false;
-
-    float position;   // position actuelle de la zone éclairée, en « numéro de lumière »
+    float position;   // position actuelle de la zone éclairée, en « numéro de lumière » (0 = la plus proche de la caméra)
 
 
     void OnEnable()  { Capteurs.Interrupteur += QuandInterrupteur; }
@@ -40,8 +43,19 @@ public class LumieresCorridor : MonoBehaviour
 
     void Start()
     {
+        TrierDeLaCameraVersLeFond();
         position = PositionVisee();   // pas de glissement au démarrage
         MettreAJourCouleurs();
+    }
+
+    /// <summary>Remet la liste dans l'ordre : la lumière la plus proche de la caméra en premier.</summary>
+    void TrierDeLaCameraVersLeFond()
+    {
+        if (cameraCorridor == null) return;
+
+        Vector3 camera = cameraCorridor.position;
+        System.Array.Sort(lumieres, (a, b) =>
+            Vector3.Distance(a.transform.position, camera).CompareTo(Vector3.Distance(b.transform.position, camera)));
     }
 
     void Update()
@@ -66,12 +80,15 @@ public class LumieresCorridor : MonoBehaviour
         MettreAJourCouleurs();
     }
 
-    /// <summary>Poignée (-1 à 1) → numéro de lumière (0 à la dernière).</summary>
+    /// <summary>
+    /// Poignée → numéro de lumière.
+    /// Au repos (0) : la lumière 0, la plus proche de la caméra.
+    /// Tournée au maximum, vers le haut (1) OU vers le bas (-1) : la dernière, au fond du corridor.
+    /// </summary>
     float PositionVisee()
     {
-        float angle = inverserSens ? -Capteurs.AnglePoignee : Capteurs.AnglePoignee;
-        float de0a1 = (angle + 1f) * 0.5f;
-        return de0a1 * (lumieres.Length - 1);
+        float tour = Mathf.Abs(Capteurs.AnglePoignee);   // 0 = repos, 1 = tournée au maximum
+        return tour * (lumieres.Length - 1);
     }
 
     void MettreAJourCouleurs()

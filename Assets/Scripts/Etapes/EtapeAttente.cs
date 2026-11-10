@@ -23,7 +23,7 @@ public class EtapeAttente : Etape
     public override void QuandSonnette()                => PremierContact();
     public override void QuandHeurtoir()                => PremierContact();
     public override void QuandInterrupteur(bool allume) => PremierContact();
-    public override void QuandToucheNumpad(int chiffre) => PremierContact();
+    public override void QuandCodeNumpad(bool bonCode)  => PremierContact();
 
     void PremierContact()
     {

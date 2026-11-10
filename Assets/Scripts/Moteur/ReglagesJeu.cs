@@ -40,7 +40,8 @@ public class ReglagesJeu : MonoBehaviour
     public int[] ordreCouleurs = { 0, 2, 1 };   // Bleu → Vert → Rouge
 
     [Header("Énigme du numpad (Partie B)")]
-    [Tooltip("Le code à entrer sur le numpad pour ouvrir la porte.")]
+    [Tooltip("Le code à entrer sur le numpad (sert à écrire le journal).\n" +
+             "C'est TouchDesigner qui le vérifie : il doit avoir le MÊME code.")]
     public string codeNumpad = "1234";
 
 

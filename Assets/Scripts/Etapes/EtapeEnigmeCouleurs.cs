@@ -15,21 +15,59 @@ public class EtapeEnigmeCouleurs : Etape
 {
     public LampeSurPied lampe;
 
+    [Header("Indice : montrer qu'on peut cogner pour changer la lampe")]
+    [Tooltip("Personne n'a cogné ni sonné depuis ce temps (secondes) → la lampe s'anime pour attirer l'œil\n" +
+             "(allumée ou éteinte). Elle recommence tant que personne n'essaie. 0 = jamais.")]
+    public float secondesAvantIndice = 6f;
+
     [Header("Sons (optionnels)")]
     public AudioSource sonBonneCouleur;
     public AudioSource sonMauvaiseCouleur;
     public AudioSource sonReussite;
 
-    int progression;   // combien de bonnes couleurs ont été sélectionnées de suite
+    int progression;             // combien de bonnes couleurs ont été sélectionnées de suite
+    float heureDerniereAction;   // dernier coup de heurtoir ou de sonnette (ou dernier indice)
 
+
+    void Awake()
+    {
+        // Filet de sécurité : si le lien a été perdu dans la scène, on retrouve la lampe tout seul.
+        if (lampe == null)
+        {
+            lampe = FindAnyObjectByType<LampeSurPied>();
+
+            if (lampe != null) Debug.LogWarning($"[{Nom}] Champ « Lampe » vide : « {lampe.name} » trouvée automatiquement. Pensez à la rebrancher dans la scène.");
+            else Debug.LogError($"[{Nom}] Aucune LampeSurPied dans la scène : l'énigme des couleurs ne peut pas fonctionner.");
+        }
+    }
 
     protected override void Entrer()
     {
         progression = 0;
+        heureDerniereAction = Time.time;
+    }
+
+    void Update()   // seulement pendant cette étape (le gestionnaire désactive les autres)
+    {
+        if (lampe == null || secondesAvantIndice <= 0f) return;
+
+        if (Time.time - heureDerniereAction >= secondesAvantIndice)
+        {
+            lampe.JouerAnimation();
+            heureDerniereAction = Time.time;
+        }
+    }
+
+    public override void QuandHeurtoir()
+    {
+        heureDerniereAction = Time.time;   // le visiteur essaie : pas besoin d'indice pour l'instant
     }
 
     public override void QuandSonnette()
     {
+        heureDerniereAction = Time.time;
+
+        if (lampe == null) return;        // erreur déjà signalée (et affichée dans le panneau F1)
         if (!lampe.EstAllumee) return;   // condition du document : la lampe doit être allumée
 
         int[] ordre = ReglagesJeu.Instance.ordreCouleurs;

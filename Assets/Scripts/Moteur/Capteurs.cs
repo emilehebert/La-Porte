@@ -35,7 +35,8 @@ public class Capteurs : MonoBehaviour
     public string adresseHeurtoir = "/vibration";
     [Tooltip("1 = allumé, 0 = fermé.")]
     public string adresseInterrupteur = "/switch";
-    [Tooltip("UN message par touche appuyée, avec le chiffre (0 à 9).")]
+    [Tooltip("TouchDesigner vérifie le code et envoie EN CONTINU : 0 = rien, 1 = bon code, -1 = mauvais code.\n" +
+             "Un essai compte quand la valeur CHANGE (0 → 1 ou 0 → -1). Revenir à 0 entre deux essais.")]
     public string adresseNumpad = "/code";
 
     [Header("Anti-rebond (secondes)")]
@@ -43,8 +44,6 @@ public class Capteurs : MonoBehaviour
     public float delaiHeurtoir = 0.25f;
     [Tooltip("Temps minimum entre deux coups de sonnette.")]
     public float delaiSonnette = 0.3f;
-    [Tooltip("Le même chiffre reçu de nouveau avant ce délai = la même touche (si TouchDesigner envoie en continu).")]
-    public float delaiNumpad = 0.1f;
 
 
     // ---------- Les événements que le jeu écoute ----------
@@ -52,7 +51,7 @@ public class Capteurs : MonoBehaviour
     public static event Action Sonnette;
     public static event Action Heurtoir;
     public static event Action<bool> Interrupteur;   // true = allumé
-    public static event Action<int> ToucheNumpad;    // chiffre de 0 à 9
+    public static event Action<bool> CodeNumpad;     // true = bon code, false = mauvais code
 
 
     // ---------- L'état actuel du matériel ----------
@@ -82,8 +81,8 @@ public class Capteurs : MonoBehaviour
     static Capteurs instance;
     DetecteurAppui detecteurSonnette;
     DetecteurAppui detecteurHeurtoir;
-    int dernierChiffreRecu = -1;
-    float heureDernierChiffreRecu = -100f;
+    bool codeDejaRecu;          // false tant qu'aucune valeur /code n'est arrivée depuis le chargement
+    int etatCodePrecedent;      // 0 = rien, 1 = bon, -1 = mauvais
 
 
     void Awake()
@@ -106,7 +105,7 @@ public class Capteurs : MonoBehaviour
         recepteur.Bind("*", NoterPourLeMoniteur);   // "*" = toutes les adresses
         recepteur.Bind(adressePoignee, message => ChangerPoignee(LireNombre(message)));
         recepteur.Bind(adresseInterrupteur, message => ChangerInterrupteur(LireNombre(message) >= 0.5f));
-        recepteur.Bind(adresseNumpad, message => RecevoirNumpad(Mathf.RoundToInt(LireNombre(message))));
+        recepteur.Bind(adresseNumpad, message => RecevoirCodeNumpad(LireNombre(message)));
 
         recepteur.Bind(adresseSonnette, message =>
         {
@@ -143,11 +142,11 @@ public class Capteurs : MonoBehaviour
         Interrupteur?.Invoke(allume);
     }
 
-    public static void AppuyerNumpad(int chiffre)
+    /// <summary>Un code a été entré sur le numpad. TouchDesigner a déjà vérifié s'il est bon.</summary>
+    public static void EntrerCodeNumpad(bool bonCode)
     {
-        if (chiffre < 0 || chiffre > 9) return;     // ex. : -1 = « aucune touche »
         NoterContact();
-        ToucheNumpad?.Invoke(chiffre);
+        CodeNumpad?.Invoke(bonCode);
     }
 
     public static void ChangerPoignee(float angle)
@@ -175,17 +174,29 @@ public class Capteurs : MonoBehaviour
     // ---------- Outils internes ----------
 
     /// <summary>
-    /// Un chiffre reçu en OSC. Si TouchDesigner envoie en continu (5 5 5 5...),
-    /// la touche ne compte qu'une fois. Un message par touche (le format prévu) passe tel quel.
+    /// /code arrive EN CONTINU depuis TouchDesigner (0 0 0 ... 1 1 1 ... 0 0).
+    ///   0 = personne n'a entré de code · 1 = bon code · -1 = mauvais code.
+    /// Un essai compte seulement quand la valeur CHANGE (0 → 1 ou 0 → -1).
+    ///
+    /// La toute première valeur reçue (au chargement de la scène) ne compte pas :
+    /// c'est l'état actuel de TouchDesigner, pas un nouvel essai.
+    /// (Avant, le « 0 » reçu au chargement passait pour un mauvais code et sautait l'étape d'attente.)
     /// </summary>
-    void RecevoirNumpad(int chiffre)
+    void RecevoirCodeNumpad(float valeur)
     {
-        bool memeTouche = chiffre == dernierChiffreRecu && Time.time - heureDernierChiffreRecu < delaiNumpad;
+        int etat = valeur >= 0.5f ? 1 : valeur <= -0.5f ? -1 : 0;
 
-        dernierChiffreRecu = chiffre;
-        heureDernierChiffreRecu = Time.time;
+        bool premiereValeur = !codeDejaRecu;
+        bool aChange = etat != etatCodePrecedent;
 
-        if (!memeTouche) AppuyerNumpad(chiffre);
+        codeDejaRecu = true;
+        etatCodePrecedent = etat;
+
+        if (premiereValeur || !aChange) return;
+
+        if (etat == 1) EntrerCodeNumpad(true);
+        else if (etat == -1) EntrerCodeNumpad(false);
+        // retour à 0 : rien à faire, le numpad est prêt pour le prochain essai
     }
 
     static void NoterContact()

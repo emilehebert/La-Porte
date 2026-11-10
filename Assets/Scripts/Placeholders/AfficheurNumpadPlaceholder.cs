@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// PLACEHOLDER — affiche dans la pièce (écran du visiteur) ce qui est tapé sur le numpad :
-/// « CODE : 12__ », puis « CODE FAUX » un moment si le code est mauvais.
+/// PLACEHOLDER — affiche dans la pièce (écran du visiteur) « ENTREZ LE CODE »,
+/// puis « CODE FAUX » un moment si TouchDesigner dit que le code est mauvais.
 /// N'affiche rien en dehors de l'étape du numpad.
 /// </summary>
 public class AfficheurNumpadPlaceholder : MonoBehaviour
@@ -25,6 +25,6 @@ public class AfficheurNumpadPlaceholder : MonoBehaviour
         }
 
         bool erreurRecente = Time.time - etape.HeureDerniereErreur < dureeMessageErreur;
-        texte.text = erreurRecente ? "CODE FAUX" : "CODE : " + etape.SaisieAvecTirets;
+        texte.text = erreurRecente ? "CODE FAUX" : "ENTREZ LE CODE";
     }
 }

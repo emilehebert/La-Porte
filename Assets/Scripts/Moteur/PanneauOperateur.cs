@@ -11,12 +11,14 @@ using UnityEngine.InputSystem;
 ///   F5          rejouer l'étape actuelle depuis son début
 ///   Ctrl + R    recommencer toute l'expérience
 ///
-/// Simuler les capteurs (seulement quand le panneau est ouvert, pour éviter les accidents) :
-///   S sonnette · H heurtoir · L interrupteur · ← → poignée · 0 à 9 numpad
+/// Simuler les capteurs (panneau ouvert OU fermé) :
+///   S sonnette · H heurtoir · L interrupteur · ← → poignée · B bon code · M mauvais code
+/// Pour l'exposition, décocher « Simulation Clavier » si le clavier est à portée du public.
 /// </summary>
 public class PanneauOperateur : MonoBehaviour
 {
-    [Tooltip("Permet de simuler les capteurs avec le clavier (S, H, L, flèches, chiffres) quand le panneau F1 est ouvert.")]
+    [Tooltip("Permet de simuler les capteurs avec le clavier (S, H, L, flèches, B, M), que le panneau F1 soit ouvert ou non.\n" +
+             "Décocher pour l'exposition si le clavier est à portée du public.")]
     public bool simulationClavier = true;
 
     [Tooltip("Vitesse de la poignée simulée avec les flèches ← →.")]
@@ -24,18 +26,6 @@ public class PanneauOperateur : MonoBehaviour
 
     static bool ouvert;   // « static » : le panneau reste ouvert quand la scène se recharge
     Vector2 defilement;
-
-    static readonly Key[] touchesChiffres =
-    {
-        Key.Digit0, Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4,
-        Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9,
-    };
-
-    static readonly Key[] touchesPaveNumerique =
-    {
-        Key.Numpad0, Key.Numpad1, Key.Numpad2, Key.Numpad3, Key.Numpad4,
-        Key.Numpad5, Key.Numpad6, Key.Numpad7, Key.Numpad8, Key.Numpad9,
-    };
 
 
     // ======================= CLAVIER =======================
@@ -54,8 +44,8 @@ public class PanneauOperateur : MonoBehaviour
         if (clavier.f5Key.wasPressedThisFrame) jeu.RejouerEtape();
         if (clavier.ctrlKey.isPressed && clavier.rKey.wasPressedThisFrame) jeu.Recommencer();
 
-        // Panneau fermé : quelqu'un qui tape sur le clavier ne peut pas agir sur le jeu.
-        if (simulationClavier && ouvert) SimulerCapteurs(clavier);
+        // Les touches de simulation marchent aussi panneau fermé (pour tester en voyant la scène).
+        if (simulationClavier) SimulerCapteurs(clavier);
     }
 
     void SimulerCapteurs(Keyboard clavier)
@@ -72,12 +62,8 @@ public class PanneauOperateur : MonoBehaviour
             Capteurs.ChangerPoignee(Capteurs.AnglePoignee + direction * vitessePoignee * Time.deltaTime);
         }
 
-        for (int chiffre = 0; chiffre <= 9; chiffre++)
-        {
-            bool appuye = clavier[touchesChiffres[chiffre]].wasPressedThisFrame
-                       || clavier[touchesPaveNumerique[chiffre]].wasPressedThisFrame;
-            if (appuye) Capteurs.AppuyerNumpad(chiffre);
-        }
+        if (clavier.bKey.wasPressedThisFrame) Capteurs.EntrerCodeNumpad(true);
+        if (clavier.mKey.wasPressedThisFrame) Capteurs.EntrerCodeNumpad(false);
     }
 
 
@@ -183,11 +169,9 @@ public class PanneauOperateur : MonoBehaviour
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        GUILayout.Label("Numpad (0-9) :", GUILayout.Width(100));
-        for (int chiffre = 0; chiffre <= 9; chiffre++)
-        {
-            if (GUILayout.Button(chiffre.ToString(), GUILayout.Height(28))) Capteurs.AppuyerNumpad(chiffre);
-        }
+        GUILayout.Label("Numpad :", GUILayout.Width(100));
+        if (GUILayout.Button("Bon code (B)", GUILayout.Height(28))) Capteurs.EntrerCodeNumpad(true);
+        if (GUILayout.Button("Mauvais code (M)", GUILayout.Height(28))) Capteurs.EntrerCodeNumpad(false);
         GUILayout.EndHorizontal();
     }
 

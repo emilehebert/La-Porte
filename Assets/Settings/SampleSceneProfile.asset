@@ -308,10 +308,10 @@ MonoBehaviour:
     m_Value: {x: 0, y: 1}
   color:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.521
   chroma:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.562
   alpha:
     m_OverrideState: 1
     m_Value: 1
@@ -320,7 +320,7 @@ MonoBehaviour:
     m_Value: 0
   framebufferDither:
     m_OverrideState: 1
-    m_Value: 0.812
+    m_Value: 0.5
   ditherSize:
     m_OverrideState: 1
     m_Value: 1

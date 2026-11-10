@@ -52,7 +52,7 @@ public abstract class Etape : MonoBehaviour
     public virtual void QuandSonnette() { }
     public virtual void QuandHeurtoir() { }
     public virtual void QuandInterrupteur(bool allume) { }
-    public virtual void QuandToucheNumpad(int chiffre) { }
+    public virtual void QuandCodeNumpad(bool bonCode) { }
 
 
     // ---------- Outils pour vos étapes ----------

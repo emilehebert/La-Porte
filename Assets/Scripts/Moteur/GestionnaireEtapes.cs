@@ -70,7 +70,7 @@ public class GestionnaireEtapes : MonoBehaviour
         Capteurs.Sonnette += TransmettreSonnette;
         Capteurs.Heurtoir += TransmettreHeurtoir;
         Capteurs.Interrupteur += TransmettreInterrupteur;
-        Capteurs.ToucheNumpad += TransmettreToucheNumpad;
+        Capteurs.CodeNumpad += TransmettreCodeNumpad;
     }
 
     void OnDisable()
@@ -78,7 +78,7 @@ public class GestionnaireEtapes : MonoBehaviour
         Capteurs.Sonnette -= TransmettreSonnette;
         Capteurs.Heurtoir -= TransmettreHeurtoir;
         Capteurs.Interrupteur -= TransmettreInterrupteur;
-        Capteurs.ToucheNumpad -= TransmettreToucheNumpad;
+        Capteurs.CodeNumpad -= TransmettreCodeNumpad;
     }
 
     void Update()
@@ -174,5 +174,5 @@ public class GestionnaireEtapes : MonoBehaviour
     void TransmettreSonnette()                { if (EtapeActuelle != null) EtapeActuelle.QuandSonnette(); }
     void TransmettreHeurtoir()                { if (EtapeActuelle != null) EtapeActuelle.QuandHeurtoir(); }
     void TransmettreInterrupteur(bool allume) { if (EtapeActuelle != null) EtapeActuelle.QuandInterrupteur(allume); }
-    void TransmettreToucheNumpad(int chiffre) { if (EtapeActuelle != null) EtapeActuelle.QuandToucheNumpad(chiffre); }
+    void TransmettreCodeNumpad(bool bonCode)  { if (EtapeActuelle != null) EtapeActuelle.QuandCodeNumpad(bonCode); }
 }

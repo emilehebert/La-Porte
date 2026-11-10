@@ -299,7 +299,6 @@ public static class PlaceholdersLaPorte
         if (numpad != null)
         {
             Undo.RecordObject(numpad, "Brancher les sons");
-            if (numpad.sonTouche == null)      numpad.sonTouche      = Bip("Touche du numpad", sons.transform, 1200f, 0.05f, 1, 1f, ref branches);
             if (numpad.sonMauvaisCode == null) numpad.sonMauvaisCode = Bip("Mauvais code", sons.transform, 180f, 0.25f, 2, 1f, ref branches);
             if (numpad.sonBonCode == null)     numpad.sonBonCode     = Bip("Bon code", sons.transform, 880f, 0.12f, 3, 1.25f, ref branches);
         }

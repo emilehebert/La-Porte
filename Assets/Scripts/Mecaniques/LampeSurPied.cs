@@ -12,7 +12,9 @@ using UnityEngine;
 ///  - Animation « on peut interagir avec moi » (Lamp_interact) : la lampe tremble.
 ///    Elle joue à chaque coup de heurtoir, allumée OU éteinte (je cogne → la lampe réagit),
 ///    et l'étape de l'énigme la déclenche aussi quand personne n'a cogné depuis un moment.
-///    Seul le MOUVEMENT de l'animation est gardé : la lumière et l'abat-jour restent contrôlés par ce script.
+///    Lampe allumée (ou indice) : seul le MOUVEMENT de l'animation est gardé.
+///    Lampe ÉTEINTE + coup de heurtoir : elle tremble ET sa lumière scintille (suivant l'animation),
+///    puis elle redevient éteinte. Ça montre au visiteur qu'il peut interagir avec elle.
 ///
 /// Fonctionne tout le temps, peu importe l'étape.
 /// À mettre sur l'objet de la lampe.
@@ -39,6 +41,10 @@ public class LampeSurPied : MonoBehaviour
     [Tooltip("Joue aussi l'animation à chaque coup de heurtoir : le visiteur voit que c'est SON geste qui fait réagir la lampe.")]
     public bool animerAChaqueCoup = true;
 
+    [Tooltip("Lampe ÉTEINTE : à chaque coup de heurtoir, elle tremble ET sa lumière scintille brièvement, puis redevient éteinte.\n" +
+             "Décoché : elle tremble seulement.")]
+    public bool scintillerSiEteinte = true;
+
     public int IndexCouleur { get; private set; }
     public bool EstAllumee => Capteurs.InterrupteurAllume;
     public bool AnimationEnCours => routineAnimation != null;
@@ -46,6 +52,7 @@ public class LampeSurPied : MonoBehaviour
     float intensiteNormale;
     Coroutine clignotement;
     Coroutine routineAnimation;
+    bool scintillementEnCours;    // l'animation en cours doit aussi montrer la lumière (lampe éteinte + heurtoir)
     PartieEmissive partieEmissive;
     Quaternion rotationNormale;   // la position de la lampe au repos (l'animation la fait trembler)
 
@@ -85,13 +92,25 @@ public class LampeSurPied : MonoBehaviour
 
     void LateUpdate()
     {
-        // L'animation Lamp_interact anime aussi l'intensité de la lumière et la couleur de l'abat-jour.
-        // On ne garde que le mouvement : à chaque image, on annule ces deux-là
-        // (LateUpdate passe APRÈS l'Animator). Sinon une lampe éteinte aurait l'air de s'allumer.
+        // L'animation Lamp_interact anime aussi l'intensité de la lumière (de 0 à 1, elle scintille)
+        // et la couleur de l'abat-jour. LateUpdate passe APRÈS l'Animator : on décide ici ce qu'on en garde.
         if (!AnimationEnCours) return;
 
-        lumiere.intensity = intensiteNormale;
-        partieEmissive.RetirerCouleursAnimees();
+        float scintillement = Mathf.Clamp01(lumiere.intensity);   // la valeur que l'Animator vient d'écrire
+        partieEmissive.RetirerCouleursAnimees();                  // l'abat-jour : seulement nos couleurs à nous
+
+        if (scintillementEnCours && !EstAllumee)
+        {
+            // Lampe éteinte qui réagit au heurtoir : la lumière et l'ampoule scintillent, dans la couleur de la lampe.
+            lumiere.enabled = true;
+            lumiere.intensity = scintillement * intensiteNormale;
+            partieEmissive.Allumer(lumiere.color * scintillement);
+        }
+        else
+        {
+            // On ne garde que le mouvement : intensité normale, allumée ou éteinte comme l'interrupteur le dit.
+            lumiere.intensity = intensiteNormale;
+        }
     }
 
     /// <summary>
@@ -117,7 +136,8 @@ public class LampeSurPied : MonoBehaviour
 
     void CouleurSuivante()
     {
-        if (animerAChaqueCoup) JouerAnimation();   // la lampe réagit au heurtoir, allumée ou non
+        // La lampe réagit au heurtoir, allumée ou non. Éteinte, sa lumière scintille aussi.
+        if (animerAChaqueCoup) JouerAnimation(scintillerSiEteinte && !EstAllumee);
 
         if (!EstAllumee) return;   // condition du document : la couleur ne change que si la lampe est allumée
 
@@ -166,13 +186,20 @@ public class LampeSurPied : MonoBehaviour
 
     /// <summary>
     /// La lampe tremble (animation Lamp_interact), allumée ou éteinte, puis revient droite.
+    /// « scintiller » : si la lampe est éteinte, sa lumière scintille aussi pendant l'animation.
     /// Si elle joue déjà, elle recommence du début.
     /// </summary>
-    public void JouerAnimation()
+    public void JouerAnimation(bool scintiller = false)
     {
         if (animateur == null) return;
 
-        if (routineAnimation != null) StopCoroutine(routineAnimation);
+        if (routineAnimation != null)
+        {
+            StopCoroutine(routineAnimation);
+            if (scintillementEnCours) MontrerAllumee(EstAllumee);   // la lumière du scintillement d'avant ne reste pas allumée
+        }
+
+        scintillementEnCours = scintiller;
         routineAnimation = StartCoroutine(RoutineAnimation());
     }
 
@@ -191,9 +218,10 @@ public class LampeSurPied : MonoBehaviour
         RemettreNormal();
     }
 
-    /// <summary>Après l'animation : la lampe droite, son intensité et son ampoule normales.</summary>
+    /// <summary>Après l'animation : la lampe droite, son intensité et son ampoule normales (éteinte si elle l'était).</summary>
     void RemettreNormal()
     {
+        scintillementEnCours = false;
         animateur.enabled = false;
         animateur.transform.localRotation = rotationNormale;
         partieEmissive.RetirerCouleursAnimees();   // l'Animator a posé sa propre couleur d'émission

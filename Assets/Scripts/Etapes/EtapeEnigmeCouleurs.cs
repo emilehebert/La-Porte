@@ -16,8 +16,12 @@ public class EtapeEnigmeCouleurs : Etape
     public LampeSurPied lampe;
 
     [Header("Indice : montrer qu'on peut cogner pour changer la lampe")]
+    [Tooltip("Décocher pour ne jamais faire l'indice (la lampe ne tremble plus toute seule).")]
+    public bool indiceActif = true;
+
     [Tooltip("Personne n'a cogné ni sonné depuis ce temps (secondes) → la lampe s'anime pour attirer l'œil\n" +
-             "(allumée ou éteinte). Elle recommence tant que personne n'essaie. 0 = jamais.")]
+             "(allumée ou éteinte). Elle recommence tant que personne n'a cogné.\n" +
+             "Dès le premier coup de heurtoir, l'indice s'arrête pour toute l'étape (le visiteur a compris). 0 = jamais.")]
     public float secondesAvantIndice = 6f;
 
     [Header("Sons (optionnels)")]
@@ -27,6 +31,7 @@ public class EtapeEnigmeCouleurs : Etape
 
     int progression;             // combien de bonnes couleurs ont été sélectionnées de suite
     float heureDerniereAction;   // dernier coup de heurtoir ou de sonnette (ou dernier indice)
+    bool aDejaCogne;             // true après le 1er coup de heurtoir de l'étape : plus besoin d'indice
 
 
     void Awake()
@@ -45,11 +50,12 @@ public class EtapeEnigmeCouleurs : Etape
     {
         progression = 0;
         heureDerniereAction = Time.time;
+        aDejaCogne = false;
     }
 
     void Update()   // seulement pendant cette étape (le gestionnaire désactive les autres)
     {
-        if (lampe == null || secondesAvantIndice <= 0f) return;
+        if (!indiceActif || lampe == null || secondesAvantIndice <= 0f || aDejaCogne) return;
 
         if (Time.time - heureDerniereAction >= secondesAvantIndice)
         {
@@ -60,7 +66,8 @@ public class EtapeEnigmeCouleurs : Etape
 
     public override void QuandHeurtoir()
     {
-        heureDerniereAction = Time.time;   // le visiteur essaie : pas besoin d'indice pour l'instant
+        heureDerniereAction = Time.time;
+        aDejaCogne = true;   // le visiteur sait qu'il peut cogner : l'indice ne rejoue plus
     }
 
     public override void QuandSonnette()

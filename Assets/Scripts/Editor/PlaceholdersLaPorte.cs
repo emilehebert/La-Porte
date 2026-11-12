@@ -15,7 +15,7 @@ using HauntedPSX.RenderPipelines.PSX.Editor;
 ///     un cube blanc (le journal) tombe de la bibliothèque sur la table. C'est une vraie Timeline
 ///     (Assets/Placeholders/Indices.playable) branchée sur l'étape « 2 - Indices ».
 ///   - Partie B ét. X : les pages du journal (texte) s'inversent avec l'interrupteur.
-///   - Numpad : ce qui est tapé s'affiche dans la pièce, « CODE FAUX » si c'est mauvais.
+///   - Numpad : « ENTREZ LE CODE » dans la pièce, « CODE FAUX » si TouchDesigner dit que c'est mauvais.
 ///   - Porte ouverte : « PORTE OUVERTE » en vert sur les deux écrans.
 ///   - Sons : des bips générés par le code sur toutes les étapes.
 ///
@@ -227,7 +227,7 @@ public static class PlaceholdersLaPorte
     }
 
 
-    // ---------- Numpad : ce qui est tapé ----------
+    // ---------- Numpad : « ENTREZ LE CODE » / « CODE FAUX » ----------
 
     static void AjouterAfficheurNumpad(Transform racine, Camera camPiece, List<string> rapport)
     {
@@ -237,7 +237,7 @@ public static class PlaceholdersLaPorte
 
         AfficheurNumpadPlaceholder afficheur = texte.gameObject.AddComponent<AfficheurNumpadPlaceholder>();
         afficheur.texte = texte;
-        rapport.Add("✔ Numpad : « CODE : 12__ » et « CODE FAUX » affichés dans la pièce");
+        rapport.Add("✔ Numpad : « ENTREZ LE CODE » et « CODE FAUX » affichés dans la pièce");
     }
 
 

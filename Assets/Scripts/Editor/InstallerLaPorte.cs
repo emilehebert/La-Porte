@@ -10,9 +10,10 @@ using extOSC;
 /// Menu « La Porte → Installer dans la scène ouverte ».
 ///
 /// Crée l'objet « Jeu » (moteur + étapes) et branche les objets qui existent déjà,
-/// en reprenant les réglages de l'ancien OSCObjectController :
+/// en reprenant les réglages de l'ancien OSCObjectController S'IL EST ENCORE DANS LA SCÈNE :
 ///   récepteur OSC, lumières du corridor, lampe sur pied, couleurs.
 /// Puis désactive l'ancien script (il ferait double emploi).
+/// Sans lui : seul le récepteur OSC est trouvé, le reste est à brancher à la main (le rapport le dit).
 ///
 /// Tout est annulable avec Ctrl+Z. N'oubliez pas de sauvegarder la scène (Ctrl+S).
 /// </summary>

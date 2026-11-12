@@ -45,6 +45,11 @@ public class Capteurs : MonoBehaviour
     [Tooltip("Temps minimum entre deux coups de sonnette.")]
     public float delaiSonnette = 0.3f;
 
+    [Header("Poignée")]
+    [Tooltip("Plus petit mouvement de la poignée qui compte comme un contact (pour le retour automatique au début).\n" +
+             "Augmenter si le capteur « tremble » : sinon le jeu croit que quelqu'un touche toujours la poignée.")]
+    public float seuilBruitPoignee = 0.02f;
+
 
     // ---------- Les événements que le jeu écoute ----------
 
@@ -55,8 +60,8 @@ public class Capteurs : MonoBehaviour
 
 
     // ---------- L'état actuel du matériel ----------
-    // « static » : ces valeurs survivent au rechargement de la scène,
-    // comme le vrai matériel qui ne bouge pas quand on recommence.
+    // « static » : ces valeurs survivent au rechargement de la scène quand on saute à une étape
+    // ou qu'on rejoue une étape. Quand l'expérience RECOMMENCE AU DÉBUT, RemettreAZero() les remet au repos.
 
     public static float AnglePoignee { get; private set; }        // de -1 à 1
     public static bool InterrupteurAllume { get; private set; }
@@ -152,8 +157,22 @@ public class Capteurs : MonoBehaviour
     public static void ChangerPoignee(float angle)
     {
         angle = Mathf.Clamp(angle, -1f, 1f);
-        if (Mathf.Abs(angle - AnglePoignee) > 0.02f) NoterContact();   // ignore le petit bruit du capteur
+
+        float seuil = instance != null ? instance.seuilBruitPoignee : 0.02f;
+        if (Mathf.Abs(angle - AnglePoignee) > seuil) NoterContact();   // ignore le petit bruit du capteur
         AnglePoignee = angle;
+    }
+
+    /// <summary>
+    /// Remet le matériel « au repos » : interrupteur fermé (lampe éteinte), poignée droite.
+    /// Appelé juste avant de recharger la scène pour recommencer l'expérience au début :
+    /// pas besoin d'événement, tous les objets relisent cet état en se rechargeant.
+    /// (Avec le vrai matériel, TouchDesigner renverra l'état réel au prochain message.)
+    /// </summary>
+    public static void RemettreAZero()
+    {
+        InterrupteurAllume = false;
+        AnglePoignee = 0f;
     }
 
     /// <summary>Envoie une valeur à TouchDesigner (ex. : ouvrir la serrure). Ne fait rien si l'adresse est vide.</summary>

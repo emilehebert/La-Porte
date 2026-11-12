@@ -128,10 +128,15 @@ public class GestionnaireEtapes : MonoBehaviour
         AllerA(0);
     }
 
-    /// <summary>Recharge la scène et démarre directement à l'étape demandée.</summary>
+    /// <summary>
+    /// Recharge la scène et démarre directement à l'étape demandée.
+    /// Retour à l'étape 0 (recommencer l'expérience) : le matériel est aussi remis au repos
+    /// (interrupteur fermé = lampe éteinte, poignée droite).
+    /// </summary>
     public void AllerA(int index)
     {
         Debug.Log($"[Étapes] Rechargement de la scène → étape {index}.");
+        if (index == 0) Capteurs.RemettreAZero();
         etapeDemandee = index;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }

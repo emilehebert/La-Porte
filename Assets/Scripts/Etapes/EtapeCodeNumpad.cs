@@ -7,7 +7,7 @@ using UnityEngine;
 ///   Visiteur  : retrouve ces personnes dans le journal, et leur numéro;
 ///               entre le code sur le numpad.
 ///
-/// C'est TouchDesigner qui vérifie le code : Unity reçoit seulement « bon » (1) ou « mauvais » (0).
+/// C'est TouchDesigner qui vérifie le code : Unity reçoit seulement « bon » (1) ou « mauvais » (-1).
 /// Bon code → on passe à la suivante. Mauvais code → « CODE FAUX » un moment, et on peut réessayer.
 /// </summary>
 public class EtapeCodeNumpad : Etape

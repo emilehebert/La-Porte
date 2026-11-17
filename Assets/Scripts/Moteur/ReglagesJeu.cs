@@ -16,6 +16,30 @@ public class CouleurNommee
     }
 }
 
+/// <summary>Une tête : ce qui la distingue (écrit dans le journal), son numéro et son modèle 3D.</summary>
+[System.Serializable]
+public class Tete
+{
+    [Tooltip("Ce qui la distingue des autres têtes. C'est le nom écrit dans le journal.")]
+    public string description;
+
+    [Tooltip("Son numéro dans le journal. Le code du numpad = les numéros des têtes tombées, dans l'ordre de chute.\n" +
+             "Un chiffre de 1 à 9, différent pour chaque tête (pas de 0 : il disparaîtrait au début du code envoyé à TouchDesigner).")]
+    public string numero;
+
+    [Tooltip("Le prefab de la tête (Assets/Prefabs/Tetes). Seules les têtes tirées au hasard sont créées pendant le jeu.\n" +
+             "Le menu « La Porte → Finaliser les têtes » les assigne tout seul.")]
+    public GameObject modele;
+
+    public Tete() { }
+
+    public Tete(string description, string numero)
+    {
+        this.description = description;
+        this.numero = numero;
+    }
+}
+
 /// <summary>
 /// TOUT ce qu'on peut ajuster dans les énigmes, au même endroit.
 /// On change les solutions ici, sans toucher au code.
@@ -39,15 +63,80 @@ public class ReglagesJeu : MonoBehaviour
              "C'est aussi l'ordre affiché sur les lumières du corridor.")]
     public int[] ordreCouleurs = { 0, 2, 1 };   // Bleu → Vert → Rouge
 
-    [Header("Énigme du numpad (Partie B)")]
-    [Tooltip("Le code à entrer sur le numpad (sert à écrire le journal).\n" +
-             "C'est TouchDesigner qui le vérifie : il doit avoir le MÊME code.")]
-    public string codeNumpad = "1234";
+    [Header("Les têtes et le code du numpad (Partie A ét. 4 + Partie B)")]
+    [Tooltip("Les têtes possibles. À chaque partie, 3 sont choisies au hasard : ce sont elles qui tombent, dans un ordre au hasard.\n" +
+             "Le journal montre toutes les têtes avec leur numéro : celles qui ne tombent pas servent de leurres.")]
+    public Tete[] tetes =
+    {
+        new Tete("Moustachu", "4"),
+        new Tete("Chauve",    "7"),
+        new Tete("Afro",      "2"),
+        new Tete("Lunettes",  "9"),
+        new Tete("Rousse",    "5"),
+    };
+
+    /// <summary>Combien de têtes tombent à chaque partie (autant que d'emplacements dans la Timeline).</summary>
+    public const int NombreDeTetesQuiTombent = 3;
+
+    /// <summary>Les têtes tombées cette partie (leur place dans « tetes »), dans l'ordre de chute.</summary>
+    public int[] TetesTombees { get; private set; } = new int[0];
+
+    /// <summary>
+    /// Le code à entrer sur le numpad cette partie : les numéros des têtes tombées, dans l'ordre de chute (ex. « 924 »).
+    /// Il change à chaque partie : Unity l'envoie à TouchDesigner (voir l'étape « 3 - Code du numpad »).
+    /// </summary>
+    public string CodeNumpad { get; private set; } = "";
 
 
     void Awake()
     {
         Instance = this;
+        ChoisirTetes();
+    }
+
+    /// <summary>
+    /// Tire les têtes qui tombent, dans un ordre au hasard, et calcule le code qui va avec.
+    /// Appelé à chaque chargement de la scène : recommencer (ou rejouer une étape) = nouvelles têtes, nouveau code.
+    /// </summary>
+    public void ChoisirTetes()
+    {
+        // Mélanger les places 0, 1, 2, 3, 4 (mélange de Fisher-Yates), puis garder les premières.
+        int[] melange = new int[tetes.Length];
+        for (int i = 0; i < melange.Length; i++) melange[i] = i;
+        for (int i = melange.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (melange[i], melange[j]) = (melange[j], melange[i]);
+        }
+
+        int nombre = Mathf.Min(NombreDeTetesQuiTombent, melange.Length);
+        if (nombre < NombreDeTetesQuiTombent)
+        {
+            Debug.LogError($"[Têtes] Il faut au moins {NombreDeTetesQuiTombent} têtes dans ReglagesJeu → Tetes (il y en a {tetes.Length}).");
+        }
+
+        TetesTombees = new int[nombre];
+        CodeNumpad = "";
+        for (int i = 0; i < nombre; i++)
+        {
+            TetesTombees[i] = melange[i];
+            CodeNumpad += tetes[melange[i]].numero;
+        }
+
+        Debug.Log($"[Têtes] Cette partie : {TexteTetesTombees()} → code {CodeNumpad}");
+    }
+
+    /// <summary>Ex. : « Lunettes (9) → Afro (2) → Moustachu (4) ».</summary>
+    public string TexteTetesTombees()
+    {
+        string texte = "";
+        for (int i = 0; i < TetesTombees.Length; i++)
+        {
+            if (i > 0) texte += " → ";
+            Tete tete = tetes[TetesTombees[i]];
+            texte += $"{tete.description} ({tete.numero})";
+        }
+        return texte;
     }
 
     public Color Couleur(int index)

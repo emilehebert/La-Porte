@@ -22,8 +22,9 @@ public class Capteurs : MonoBehaviour
     [Header("Réception OSC (TouchDesigner → Unity)")]
     public OSCReceiver recepteur;
 
-    [Header("Envoi OSC (Unity → TouchDesigner) — optionnel")]
-    [Tooltip("Seulement si Unity doit commander quelque chose de physique (ex. : la serrure de la porte).")]
+    [Header("Envoi OSC (Unity → TouchDesigner)")]
+    [Tooltip("Pour envoyer à TouchDesigner le code du numpad (il change à chaque partie) et, plus tard, la serrure.\n" +
+             "Sur l'OSCTransmitter : l'IP et le port de l'ordi de TouchDesigner.")]
     public OSCTransmitter transmetteur;
 
     [Header("Adresses OSC — à valider avec l'équipe TouchDesigner")]
@@ -174,6 +175,9 @@ public class Capteurs : MonoBehaviour
         InterrupteurAllume = false;
         AnglePoignee = 0f;
     }
+
+    /// <summary>true si un OSCTransmitter est assigné (sinon EnvoyerOSC écrit seulement dans la Console).</summary>
+    public static bool PeutEnvoyerOSC => instance != null && instance.transmetteur != null;
 
     /// <summary>Envoie une valeur à TouchDesigner (ex. : ouvrir la serrure). Ne fait rien si l'adresse est vide.</summary>
     public static void EnvoyerOSC(string adresse, float valeur)

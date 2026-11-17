@@ -1,14 +1,16 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Playables;
 
 /// <summary>
 /// Joue une Timeline (une petite cinématique), puis passe à l'étape suivante.
 ///
 /// Partie A, étape 4 du document — les indices :
-///   - corridor : trois têtes tombent de la ventilation au plafond;
-///   - pièce    : un journal tombe de la bibliothèque sur la table.
-/// → UNE Timeline avec les deux animations dedans.
+///   - corridor : trois têtes tombent de la ventilation au plafond (physique : TetesQuiTombent, branché ci-dessous);
+///   - pièce    : un journal tombe de la bibliothèque sur la table (Timeline).
+///
+/// Ce qui n'est pas dans la Timeline (ex. : la physique) se branche sur « Au Debut » et « Etat Final ».
 ///
 /// Important : sur le PlayableDirector, DÉCOCHER « Play On Awake ».
 /// Pas encore de Timeline? Laisser vide : l'étape attend « dureeSansTimeline » secondes.
@@ -23,6 +25,14 @@ public class EtapeTimeline : Etape
     [Tooltip("Temps d'attente supplémentaire après la fin de la Timeline.")]
     public float attenteApres = 0f;
 
+    [Header("En plus de la Timeline (optionnel)")]
+    [Tooltip("Appelé au début de l'étape, en même temps que la Timeline.\nEx. : Têtes qui tombent → TetesQuiTombent.Lacher.")]
+    public UnityEvent auDebut = new UnityEvent();
+
+    [Tooltip("Appelé quand on saute l'étape : tout doit être mis dans son état final, tout de suite.\n" +
+             "Ex. : Têtes qui tombent → TetesQuiTombent.PoserAuSol.")]
+    public UnityEvent etatFinal = new UnityEvent();
+
 
     void Awake()
     {
@@ -34,6 +44,7 @@ public class EtapeTimeline : Etape
 
     protected override void Entrer()
     {
+        auDebut.Invoke();
         StartCoroutine(Deroulement());
     }
 
@@ -43,7 +54,7 @@ public class EtapeTimeline : Etape
 
         if (timeline != null)
         {
-            timeline.extrapolationMode = DirectorWrapMode.Hold;   // garde la dernière image (têtes au sol)
+            timeline.extrapolationMode = DirectorWrapMode.Hold;   // garde la dernière image (journal sur la table)
             timeline.time = 0;
             timeline.Play();
             duree = (float)timeline.duration;
@@ -53,9 +64,10 @@ public class EtapeTimeline : Etape
         Terminer();
     }
 
-    /// <summary>Saute directement à la fin de la Timeline (les têtes et le journal déjà tombés).</summary>
+    /// <summary>Saute directement à la fin (les têtes et le journal déjà tombés).</summary>
     public override void AppliquerEtatFinal()
     {
+        etatFinal.Invoke();
         if (timeline == null) return;
 
         timeline.extrapolationMode = DirectorWrapMode.Hold;

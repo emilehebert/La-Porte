@@ -164,7 +164,8 @@ public static class PlaceholdersLaPorte
         {
             rapport.Add("✘ Aucune EtapeTimeline : assigner « Indices - têtes et journal » à la main");
         }
-        rapport.Add("✔ Pages du journal : s'inversent avec l'interrupteur (code découpé en ORANGE / CYAN / ROSE)");
+        rapport.Add("✔ Pages du journal : s'inversent avec l'interrupteur (les têtes et leur numéro)");
+        rapport.Add("→ Ensuite : « La Porte → Finaliser les têtes » pour que les vraies têtes tombent à la place des cubes");
     }
 
     /// <summary>Une chute : quel enfant, d'où à où, quand elle commence et combien de temps elle dure.</summary>

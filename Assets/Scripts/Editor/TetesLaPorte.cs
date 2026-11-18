@@ -18,7 +18,7 @@ using UnityEngine.Timeline;
 ///      Son enfant « Têtes qui tombent » a 3 emplacements vides (les anciens cubes de couleur sont supprimés).
 ///      Les emplacements ne sont plus animés : c'est leur position dans la scène qui compte.
 ///   3. L'étape « 2 - Indices » lâche les têtes au début (Au Debut → Lacher)
-///      et les pose au sol si on la saute (Etat Final → PoserAuSol).
+///      et les met au bout de leur corde si on la saute (Etat Final → PoserAuSol).
 ///   4. Le Corridor reçoit des MeshCollider (sol et murs) : sinon les têtes tombent à travers.
 ///
 /// Ensuite : Ctrl+S. Ne pas faire Ctrl+Z : les fichiers créés ou modifiés (prefabs, Timeline)
@@ -79,7 +79,7 @@ public static class TetesLaPorte
 
         rapport.Add("");
         rapport.Add($"Pour choisir d'où tombent les têtes : déplacer les « Emplacement tête » (juste sous la ventilation).");
-        rapport.Add("Sélectionner « Têtes qui tombent » pour les voir : ligne jaune = elle arrive au sol, ligne rouge = pas de sol en dessous.");
+        rapport.Add("Sélectionner « Têtes qui tombent » pour les voir : en jaune, la corde et la tête au repos; en rouge, la tête toucherait le sol.");
         EditorUtility.DisplayDialog("La Porte — têtes finalisées", string.Join("\n", rapport) + "\n\nSauvegardez la scène (Ctrl+S).", "OK");
     }
 
@@ -379,7 +379,7 @@ public static class TetesLaPorte
             UnityEventTools.AddPersistentListener(etape.etatFinal, tetesQuiTombent.PoserAuSol);
         }
         EditorUtility.SetDirty(etape);
-        rapport.Add($"✔ « {etape.Nom} » lâche les têtes au début, et les pose au sol si on saute l'étape");
+        rapport.Add($"✔ « {etape.Nom} » lâche les têtes au début, et les met au bout de leur corde si on saute l'étape");
     }
 
     static bool APourAppel(UnityEventBase evenement, Object cible, string methode)

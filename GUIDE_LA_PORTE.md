@@ -83,7 +83,7 @@ La lampe sur pied commence sur la **première couleur qui ne fait pas partie de 
 |---|---|---|---|---|
 | 0 | Attente des joueurs | Tout est remis à neuf. Les mécaniques marchent déjà. | Premier contact : sonnette, heurtoir, interrupteur (qui change d'état) ou numpad. Ou Page Down. (La poignée ne démarre pas l'expérience.) | — |
 | 1 | Énigme des couleurs | **Locataire** : poignée → lumières du corridor; interrupteur → révèle l'ordre des couleurs et allume la lampe. **Visiteur** : heurtoir → couleur suivante; sonnette → sélectionne la couleur affichée (seulement si la lampe est allumée). | Les 3 couleurs sont sélectionnées dans l'ordre : **Bleu → Vert → Rouge**. | Rien à remettre |
-| 2 | Indices | Timeline `Indices` (2,1 s) : **3 têtes choisies au hasard** parmi les 5 tombent de la ventilation du corridor, l'une après l'autre, dans un ordre au hasard; le journal tombe de la bibliothèque sur la table de la pièce. | La Timeline est finie | La Timeline est mise à sa dernière image (têtes au sol, journal sur la table) |
+| 2 | Indices | Timeline `Indices` (2,1 s) : **3 têtes choisies au hasard** parmi les 5 tombent de la ventilation du corridor, l'une après l'autre, dans un ordre au hasard, et restent pendues à une corde élastique (le heurtoir les fait bouger); le journal tombe de la bibliothèque sur la table de la pièce. | La Timeline est finie | La Timeline est mise à sa dernière image (têtes pendues, journal sur la table) |
 | 3 | Code du numpad | Le locataire décrit les têtes, dans l'ordre où elles sont tombées. Le visiteur trouve leurs numéros dans le journal (l'interrupteur change les personnes lisibles) et entre le code. **Le code change à chaque partie** : Unity l'envoie à TouchDesigner, qui le vérifie. « ENTREZ LE CODE » est affiché dans la pièce. | TouchDesigner envoie « bon code » | Rien à remettre |
 | 4 | Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans, bips de fin. Envoi OSC de la serrure si une adresse est remplie (vide pour l'instant). | Après **30 s**, l'expérience recommence au début | — |
 
@@ -191,8 +191,7 @@ Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste
 
 | Ce qui manque | Placeholder | Comment tester |
 |---|---|---|
-| Animation des têtes | Les 3 cubes **orange, cyan, rose** servent d'**emplacements** : la Timeline les fait tomber, et `TetesQuiTombent` met une tête choisie au hasard dans chacun (cubes cachés pendant le jeu, visibles dans l'éditeur) | Réussir l'énigme des couleurs, ou Page Down |
-| Journal | Cube blanc qui tombe de la bibliothèque sur la table (écran de la pièce) | Idem |
+| Journal | Cube blanc qui tombe de la bibliothèque sur la table (écran de la pièce) | Réussir l'énigme des couleurs, ou Page Down |
 | Pages du journal | Texte jaune au-dessus du journal, visible une fois le journal sur la table | Interrupteur (**L**) pour changer de version |
 | Retour du numpad | « ENTREZ LE CODE » en bas de l'écran de la pièce (seulement à l'étape 3), « CODE FAUX » 1,5 s si c'est mauvais | **B** / **M** |
 | Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans | Bon code (**B**) |
@@ -200,11 +199,23 @@ Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste
 
 ### Les têtes
 
-Les 5 têtes sont dans `ReglagesJeu → Tetes` : ce qui les distingue (le nom écrit dans le journal), leur numéro et leur modèle (`Head_01` à `Head_05`). Le menu **La Porte → Brancher les têtes** assigne les modèles et les emplacements tout seul (à refaire si on renomme une tête).
+Les 5 têtes sont dans `ReglagesJeu → Tetes` : ce qui les distingue (le nom écrit dans le journal), leur numéro et leur prefab (`Assets/Prefabs/Tetes`). À chaque partie, 3 sont tirées au hasard; les 2 autres ne sont pas créées. Le menu **La Porte → Finaliser les têtes** branche les prefabs et les emplacements (on peut le refaire sans danger).
 
-- Chaque tête garde la **rotation et la taille qu'elle a dans la scène** : tourner une tête dans la scène = choisir comment elle se pose au sol.
-- Elle est centrée sur son emplacement, son bas posé au sol à la fin de la chute.
-- Les 2 têtes qui ne tombent pas sont cachées pendant le jeu.
+- **Corde élastique** : chaque tête tombe de son emplacement (objet vide sous `Cinématique des indices / Têtes qui tombent`) et reste **pendue au bout d'une corde** : elle rebondit un peu, puis se balance et se calme.
+- **Heurtoir** : chaque coup **pousse les têtes et les fait tourner sur elles-mêmes**, pour que le locataire voie leurs détails.
+- **Déplacer un emplacement** = choisir où la corde est attachée. Sélectionner `Têtes qui tombent` pour voir, en jaune, la corde et la tête au repos (en rouge : la tête toucherait le sol, la corde est trop longue).
+- Si on saute l'étape, les têtes sont mises directement au bout de leur corde, immobiles.
+
+Réglages sur `Têtes qui tombent → TetesQuiTombent` :
+
+| Réglage | Effet |
+|---|---|
+| Longueur Corde | 1,6 m = la tête pend à hauteur des yeux de la caméra du corridor |
+| Raideur | Plus petit = plus élastique (la tête descend plus bas et rebondit plus) |
+| Amortissement | Plus grand = moins de rebonds |
+| Freinage Balancement / Rotation | Plus grand = la tête se calme plus vite après la chute ou un coup de heurtoir |
+| Poussée Heurtoir / Rotation Heurtoir | La force d'un coup de heurtoir (m/s et tours/s). 0 = le heurtoir ne bouge pas les têtes |
+| Épaisseur Corde / Materiau Corde | L'apparence de la corde (par défaut `Assets/Resources/CordeTete`) |
 
 ### Ce que dit le journal placeholder
 

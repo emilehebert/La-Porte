@@ -8,7 +8,8 @@ using UnityEngine;
 ///   Visiteur  : le heurtoir change la couleur de la lampe;
 ///               la sonnette sélectionne la couleur affichée.
 ///
-/// Réussie quand les couleurs sont sélectionnées dans le bon ordre (ReglagesJeu → ordreCouleurs).
+/// Réussie quand les couleurs sont sélectionnées dans le bon ordre (ReglagesJeu → ordreCouleurs,
+/// tiré au hasard à chaque partie si « Couleurs Au Hasard » est coché).
 /// Une mauvaise couleur → la lampe clignote 3 fois et on recommence la combinaison du début.
 /// </summary>
 public class EtapeEnigmeCouleurs : Etape

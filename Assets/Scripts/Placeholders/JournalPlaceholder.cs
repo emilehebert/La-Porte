@@ -7,7 +7,7 @@ using UnityEngine;
 ///   - toutes les têtes, avec leur numéro. Les têtes qui ne sont pas tombées servent de leurres;
 ///   - lampe ALLUMÉE : personnes 1, 3 et 5 lisibles; lampe FERMÉE : 2 et 4
 ///     (l'inversion est faite par JournalPersonnages, sur l'objet « pages »).
-/// Le code = les numéros des 3 têtes tombées, dans l'ordre de chute.
+/// Le code = les numéros (2 chiffres chacun) des 2 têtes tombées, dans l'ordre de chute : 4 chiffres.
 /// Les numéros ne changent pas d'une partie à l'autre : le vrai journal peut être une image fixe.
 ///
 /// Les pages n'apparaissent qu'une fois le journal tombé sur la table.

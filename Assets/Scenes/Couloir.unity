@@ -231,6 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LumiereInterrupteur
   inverser: 1
   ampoule: {fileID: 0}
+  dureeFondu: 0.4
 --- !u!1 &79188813
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +292,7 @@ GameObject:
   m_Component:
   - component: {fileID: 101421386}
   - component: {fileID: 101421387}
+  - component: {fileID: 101421390}
   m_Layer: 0
   m_Name: light 2
   m_TagString: Untagged
@@ -298,6 +300,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &101421390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101421385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af32d8330bf8492495d5db7704cfa0f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlafonnierLumiere
+  materiauPlafonnier: {fileID: 2100000, guid: 811e00659c3713345a9aa6d251eae5ca, type: 2}
+  intensiteReference: 1
+  forceLueur: 1.5
+  teinterLaBase: 1
 --- !u!4 &101421386
 Transform:
   m_ObjectHideFlags: 0
@@ -307,7 +325,7 @@ Transform:
   m_GameObject: {fileID: 101421385}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -18}
+  m_LocalPosition: {x: 0, y: 0, z: -17.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -589,7 +607,7 @@ Transform:
   m_GameObject: {fileID: 245356980}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.81299996, y: 3.4532678, z: 11.467695}
+  m_LocalPosition: {x: 0.932, y: 3.4532678, z: 11.467695}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -805,6 +823,7 @@ GameObject:
   - component: {fileID: 374978091}
   - component: {fileID: 374978090}
   - component: {fileID: 374978089}
+  - component: {fileID: 374978095}
   m_Layer: 0
   m_Name: light middle
   m_TagString: Untagged
@@ -812,7 +831,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &374978089
+--- !u!114 &374978095
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -821,10 +840,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 374978088}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af32d8330bf8492495d5db7704cfa0f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlafonnierLumiere
+  materiauPlafonnier: {fileID: 2100000, guid: e433dddf9e2bb13408fea1e1c4cb2e1b, type: 2}
+  intensiteReference: 1
+  forceLueur: 1.5
+  teinterLaBase: 1
+--- !u!114 &374978089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 374978088}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5feaa7e68cb0bf842b73e2dcd60196e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CopyLightIntensity
   MainLight: {fileID: 1230263890}
+  copierCouleur: 0
 --- !u!108 &374978090
 Light:
   m_ObjectHideFlags: 0
@@ -930,7 +966,7 @@ Transform:
   m_GameObject: {fileID: 402286105}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.363, y: 3.4532678, z: 11.467695}
+  m_LocalPosition: {x: 0.293, y: 3.4532678, z: 11.467695}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1463,7 +1499,7 @@ Transform:
   m_GameObject: {fileID: 697867316}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3, y: 2.317, z: 11}
+  m_LocalPosition: {x: 2.25, y: 2.317, z: 11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1481,38 +1517,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5feaa7e68cb0bf842b73e2dcd60196e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CopyLightIntensity
-  MainLight: {fileID: 1230263890}
---- !u!1 &704652071
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 704652072}
-  m_Layer: 0
-  m_Name: "Emplacement t\xEAte 3"
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &704652072
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 704652071}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2629999, y: 3.4532678, z: 11.467695}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1806036779}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  MainLight: {fileID: 374978088}
+  copierCouleur: 0
 --- !u!1 &709102878
 GameObject:
   m_ObjectHideFlags: 0
@@ -1564,15 +1570,19 @@ MonoBehaviour:
   - {fileID: 2111478328}
   - {fileID: 101421387}
   - {fileID: 1230263892}
+  - {fileID: 374978090}
   cameraCorridor: {fileID: 1756539177}
   lumieresDuCode:
   - {fileID: 1230263892}
   - {fileID: 101421387}
   - {fileID: 2111478328}
   couleurBlanche: {r: 1, g: 0.97, b: 0.89, a: 1}
-  intensiteMax: 1
-  largeurDegrade: 1.5
+  intensiteMax: 0.85
+  intensiteToutAllume: 1
+  largeurDegrade: 0.5
   vitesse: 4
+  dureeBasculeInterrupteur: 0.12
+  dureeTransitionCouleurs: 0.6
   scintillerSiFerme: 1
   seuilMouvementPoignee: 0.02
   courbeScintillement:
@@ -1588,17 +1598,17 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.033
-      value: 0.51
-      inSlope: -13.4
-      outSlope: -13.4
+      time: 0.04513026
+      value: 1.2798996
+      inSlope: 0.55052304
+      outSlope: 0.55052304
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 1
       outWeight: 0
     - serializedVersion: 3
-      time: 0.05
-      value: 0.33
+      time: 0.08504896
+      value: 1.2563239
       inSlope: -1.2
       outSlope: -1.2
       tangentMode: 0
@@ -1606,8 +1616,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.1
-      value: 0.31
+      time: 0.14513026
+      value: 1.2263759
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1615,8 +1625,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.117
-      value: 0.54
+      time: 0.19513026
+      value: 1.2587163
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1624,8 +1634,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.133
-      value: 0
+      time: 0.27287722
+      value: 1.29838
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -1633,59 +1643,14 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.183
-      value: 0.54
-      inSlope: 0
-      outSlope: 0
+      time: 0.39753675
+      value: 1.0266311
+      inSlope: -0.72458977
+      outSlope: -0.72458977
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.217
-      value: 0.24
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.233
-      value: 0.59
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.333
-      value: 0.05
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.35
-      value: 0.46
-      inSlope: 12.4
-      outSlope: 12.4
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 0.383
-      value: 0.67
-      inSlope: 3.6
-      outSlope: 3.6
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
+      inWeight: 1
+      outWeight: 0.5895097
     - serializedVersion: 3
       time: 0.5
       value: 1
@@ -1698,6 +1663,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  dureeApercu: 0.3
+  dureeScintillementApercu: 0.3
 --- !u!1 &718857962
 GameObject:
   m_ObjectHideFlags: 0
@@ -2419,7 +2386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fa9532ed77a14b4e89052977b2aba86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GestionnaireEtapes
-  minutesInactiviteAvantRetour: 10
+  minutesInactiviteAvantRetour: 2
 --- !u!114 &1197051985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2444,21 +2411,22 @@ MonoBehaviour:
   - nom: Mauve
     couleur: {r: 0.65, g: 0.35, b: 0.85, a: 1}
   ordreCouleurs: 000000000200000001000000
+  couleursAuHasard: 1
   tetes:
   - description: Moustachu
-    numero: 4
+    numero: 47
     modele: {fileID: 3219402401752248837, guid: f75565c4b6e2b044bb00e16e607ae0cc, type: 3}
   - description: Chauve
-    numero: 7
+    numero: 73
     modele: {fileID: 2632079939586942915, guid: 81fce147e39a6dc46bdb3e54f542b00d, type: 3}
   - description: Afro
-    numero: 2
+    numero: 25
     modele: {fileID: 8544735135006381818, guid: da4e16b8373053646b3a8f5accb4b00b, type: 3}
   - description: Lunettes
-    numero: 9
+    numero: 91
     modele: {fileID: 2302691933388330229, guid: 84aea623e7fbb2a4c892f384980a9021, type: 3}
   - description: Rousse
-    numero: 5
+    numero: 58
     modele: {fileID: 2060892439989462627, guid: 39bb9618684f96f4ea9cd99f9c4698ae, type: 3}
 --- !u!114 &1197051986
 MonoBehaviour:
@@ -2609,6 +2577,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1230263891}
   - component: {fileID: 1230263892}
+  - component: {fileID: 1230263895}
   m_Layer: 0
   m_Name: light 3
   m_TagString: Untagged
@@ -2616,6 +2585,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1230263895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230263890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af32d8330bf8492495d5db7704cfa0f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlafonnierLumiere
+  materiauPlafonnier: {fileID: 2100000, guid: e7fa8c384768c354eb1cf2089589dfdf, type: 2}
+  intensiteReference: 1
+  forceLueur: 1.5
+  teinterLaBase: 1
 --- !u!4 &1230263891
 Transform:
   m_ObjectHideFlags: 0
@@ -2625,7 +2610,7 @@ Transform:
   m_GameObject: {fileID: 1230263890}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -21}
+  m_LocalPosition: {x: 0, y: 0, z: -20.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2902,6 +2887,34 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_DirtyAABB
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Center.x
+      value: -0.15398782
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Center.y
+      value: 0.29669476
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Center.z
+      value: 0.000000059604645
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Extent.x
+      value: 0.18982792
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Extent.y
+      value: 0.2966962
+      objectReference: {fileID: 0}
+    - target: {fileID: -3887185075125053422, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
+      propertyPath: m_AABB.m_Extent.z
+      value: 0.6593405
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2483db44f727e9a43b1516daae2cb289, type: 3}
       propertyPath: m_Name
@@ -8741,12 +8754,36 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 709102880}
+        m_TargetAssemblyTypeName: LumieresCorridor, Assembly-CSharp
+        m_MethodName: ToutAllumer
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   etatFinal:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1806036778}
         m_TargetAssemblyTypeName: TetesQuiTombent, Assembly-CSharp
         m_MethodName: PoserAuSol
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 709102880}
+        m_TargetAssemblyTypeName: LumieresCorridor, Assembly-CSharp
+        m_MethodName: ToutAllumer
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8815,7 +8852,7 @@ MonoBehaviour:
   emplacements:
   - {fileID: 402286106}
   - {fileID: 245356981}
-  - {fileID: 704652072}
+  - {fileID: 0}
   delaiAvantLaPremiere: 1.6333334
   delaiEntreLesTetes: 0.6
   rotationAuHasard: 2
@@ -8826,8 +8863,8 @@ MonoBehaviour:
   freinageRotation: 0.5
   epaisseurCorde: 0.015
   materiauCorde: {fileID: 2100000, guid: 9f39c084224acfc4ba5a7f4f562c0467, type: 2}
-  pousseeHeurtoir: 0.6
-  rotationHeurtoir: 0.4
+  pousseeHeurtoir: 0.2
+  rotationHeurtoir: 1
 --- !u!4 &1806036779
 Transform:
   m_ObjectHideFlags: 0
@@ -8837,13 +8874,12 @@ Transform:
   m_GameObject: {fileID: 1806036776}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.38, y: 0, z: 0}
+  m_LocalPosition: {x: 0.56, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 402286106}
   - {fileID: 245356981}
-  - {fileID: 704652072}
   m_Father: {fileID: 1886204462}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1855054763
@@ -9049,6 +9085,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LampeSurPied
   lumiere: {fileID: 1904239257}
   ampoule: {fileID: 0}
+  dureeFondu: 0.4
   animateur: {fileID: 0}
   etatAnimation: Lamp_interact
   repetitions: 1
@@ -9597,7 +9634,7 @@ Transform:
   m_GameObject: {fileID: 2020757209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 2.317, z: 11}
+  m_LocalPosition: {x: -2.25, y: 2.317, z: 11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9615,7 +9652,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5feaa7e68cb0bf842b73e2dcd60196e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CopyLightIntensity
-  MainLight: {fileID: 1230263890}
+  MainLight: {fileID: 374978088}
+  copierCouleur: 0
 --- !u!1 &2111478326
 GameObject:
   m_ObjectHideFlags: 0
@@ -9626,6 +9664,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2111478327}
   - component: {fileID: 2111478328}
+  - component: {fileID: 2111478330}
   m_Layer: 0
   m_Name: light 1
   m_TagString: Untagged
@@ -9633,6 +9672,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2111478330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111478326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af32d8330bf8492495d5db7704cfa0f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlafonnierLumiere
+  materiauPlafonnier: {fileID: 2100000, guid: 5d54de287f716ea4b8a1d7038b06a650, type: 2}
+  intensiteReference: 1
+  forceLueur: 1.5
+  teinterLaBase: 1
 --- !u!4 &2111478327
 Transform:
   m_ObjectHideFlags: 0
@@ -9642,7 +9697,7 @@ Transform:
   m_GameObject: {fileID: 2111478326}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -15}
+  m_LocalPosition: {x: 0, y: 0, z: -14.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

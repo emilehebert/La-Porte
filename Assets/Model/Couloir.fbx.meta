@@ -17,6 +17,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Ceiling
+    second: {fileID: 2100000, guid: 8b86c8ed255352e4f875af7016ffae1f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Curtains
     second: {fileID: 2100000, guid: 49cfd06daae86a349b6b0d14257b95a2, type: 2}
   - first:
@@ -49,6 +54,26 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Lever
     second: {fileID: 2100000, guid: aea853a1c32507046b656577a5d8cdb4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Light
+    second: {fileID: 2100000, guid: e433dddf9e2bb13408fea1e1c4cb2e1b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Light 1
+    second: {fileID: 2100000, guid: e7fa8c384768c354eb1cf2089589dfdf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Light 2
+    second: {fileID: 2100000, guid: 811e00659c3713345a9aa6d251eae5ca, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Light 3
+    second: {fileID: 2100000, guid: 5d54de287f716ea4b8a1d7038b06a650, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

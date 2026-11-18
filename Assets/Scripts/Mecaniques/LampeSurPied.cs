@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// La lampe sur pied dans la pièce (l'écran du VISITEUR).
 ///
-///  - Interrupteur : allume / ferme la lampe.
+///  - Interrupteur : allume / ferme la lampe, en fondu (pas d'un coup).
 ///  - Heurtoir : fait défiler les couleurs en boucle — seulement si la lampe est allumée.
 ///    Au départ, la lampe est sur une couleur qui ne fait pas partie de la solution.
 ///  - La sonnette (sélection d'une couleur) est gérée par l'étape EtapeEnigmeCouleurs.
@@ -26,6 +26,9 @@ public class LampeSurPied : MonoBehaviour
     [Tooltip("L'objet dont le matériau émissif s'allume avec la lampe.\n" +
              "Vide = l'objet parent de la lumière (le modèle de la lampe).")]
     public Renderer ampoule;
+
+    [Tooltip("Durée (secondes) du fondu quand la lampe s'allume ou s'éteint avec l'interrupteur. 0 = instantané.")]
+    public float dureeFondu = 0.4f;
 
     [Header("Animation « on peut interagir avec moi »")]
     [Tooltip("L'Animator de la lampe (avec Lamp.controller). Vide = celui du modèle parent de la lumière.\n" +
@@ -50,6 +53,8 @@ public class LampeSurPied : MonoBehaviour
     public bool AnimationEnCours => routineAnimation != null;
 
     float intensiteNormale;
+    float niveau;                 // 0 = éteinte, 1 = allumée; glisse vers ce que l'interrupteur demande (le fondu)
+    bool cacheeParClignotement;   // la sonnette fait clignoter la lampe : éteinte d'un coup, un court instant
     Coroutine clignotement;
     Coroutine routineAnimation;
     bool scintillementEnCours;    // l'animation en cours doit aussi montrer la lumière (lampe éteinte + heurtoir)
@@ -87,8 +92,22 @@ public class LampeSurPied : MonoBehaviour
     void Start()
     {
         IndexCouleur = CouleurDeDepart();
+        niveau = EstAllumee ? 1f : 0f;   // au départ : directement dans le bon état, sans fondu
         Afficher();
     }
+
+    void Update()
+    {
+        // Le fondu : la lampe glisse vers allumée ou éteinte, selon l'interrupteur.
+        float cible = EstAllumee ? 1f : 0f;
+        if (niveau == cible) return;
+
+        niveau = dureeFondu > 0f ? Mathf.MoveTowards(niveau, cible, Time.deltaTime / dureeFondu) : cible;
+        Afficher();
+    }
+
+    /// <summary>La force visible de la lampe : 0 = éteinte, 1 = allumée (avec le fondu et le clignotement).</summary>
+    float Force => cacheeParClignotement ? 0f : Mathf.SmoothStep(0f, 1f, niveau);
 
     void LateUpdate()
     {
@@ -108,8 +127,8 @@ public class LampeSurPied : MonoBehaviour
         }
         else
         {
-            // On ne garde que le mouvement : intensité normale, allumée ou éteinte comme l'interrupteur le dit.
-            lumiere.intensity = intensiteNormale;
+            // On ne garde que le mouvement : la lumière comme l'interrupteur (et le fondu) la veulent.
+            lumiere.intensity = intensiteNormale * Force;
         }
     }
 
@@ -146,19 +165,16 @@ public class LampeSurPied : MonoBehaviour
         Afficher();
     }
 
+    /// <summary>La lumière ET l'ampoule, toujours ensemble : la couleur de la lampe, à la force du moment (fondu).</summary>
     void Afficher()
     {
         lumiere.color = ReglagesJeu.Instance.Couleur(IndexCouleur);
-        lumiere.intensity = intensiteNormale;
-        MontrerAllumee(EstAllumee);
-    }
 
-    /// <summary>La lumière ET l'ampoule, toujours ensemble (l'ampoule prend la couleur de la lumière).</summary>
-    void MontrerAllumee(bool allumee)
-    {
-        lumiere.enabled = allumee;
+        float force = Force;
+        lumiere.intensity = intensiteNormale * force;
+        lumiere.enabled = force > 0f;
 
-        if (allumee) partieEmissive.Allumer(lumiere.color);
+        if (force > 0f) partieEmissive.Allumer(lumiere.color * force);
         else partieEmissive.Eteindre();
     }
 
@@ -173,9 +189,11 @@ public class LampeSurPied : MonoBehaviour
     {
         for (int i = 0; i < fois; i++)
         {
-            MontrerAllumee(false);
+            cacheeParClignotement = true;    // clignotement : d'un coup, c'est voulu (retour de la sonnette)
+            Afficher();
             yield return new WaitForSeconds(duree);
-            MontrerAllumee(EstAllumee);
+            cacheeParClignotement = false;
+            Afficher();
             yield return new WaitForSeconds(duree);
         }
         clignotement = null;
@@ -196,7 +214,11 @@ public class LampeSurPied : MonoBehaviour
         if (routineAnimation != null)
         {
             StopCoroutine(routineAnimation);
-            if (scintillementEnCours) MontrerAllumee(EstAllumee);   // la lumière du scintillement d'avant ne reste pas allumée
+            if (scintillementEnCours)
+            {
+                scintillementEnCours = false;
+                Afficher();   // la lumière du scintillement d'avant ne reste pas allumée
+            }
         }
 
         scintillementEnCours = scintiller;

@@ -5,9 +5,10 @@ using UnityEngine;
 /// <summary>
 /// Les têtes qui tombent de la ventilation (étape « 2 - Indices »), PENDUES à une corde élastique.
 ///
-/// À chaque partie, ReglagesJeu choisit 3 têtes au hasard (et le code du numpad qui va avec).
-/// Ce script crée ces 3 têtes à partir de leur prefab (Assets/Prefabs/Tetes), cachées.
-/// Au début de l'étape, il les lâche une après l'autre, chacune à son emplacement :
+/// À chaque partie, ReglagesJeu choisit 2 têtes au hasard (et le code du numpad à 4 chiffres qui va avec).
+/// Ce script crée ces têtes à partir de leur prefab (Assets/Prefabs/Tetes), cachées.
+/// Au début de l'étape, il les lâche une après l'autre, chacune à son emplacement
+/// (les premiers de la liste : s'il y a plus d'emplacements que de têtes, les derniers ne servent pas) :
 /// la tête tombe, la corde la retient, elle rebondit un peu et se balance (physique : Rigidbody + SpringJoint).
 ///
 /// Heurtoir : chaque coup pousse les têtes et les fait tourner, pour voir leurs détails.

@@ -7,7 +7,7 @@ using UnityEngine.Playables;
 /// Joue une Timeline (une petite cinématique), puis passe à l'étape suivante.
 ///
 /// Partie A, étape 4 du document — les indices :
-///   - corridor : trois têtes tombent de la ventilation au plafond (physique : TetesQuiTombent, branché ci-dessous);
+///   - corridor : deux têtes tombent de la ventilation au plafond (physique : TetesQuiTombent, branché ci-dessous);
 ///   - pièce    : un journal tombe de la bibliothèque sur la table (Timeline).
 ///
 /// Ce qui n'est pas dans la Timeline (ex. : la physique) se branche sur « Au Debut » et « Etat Final ».

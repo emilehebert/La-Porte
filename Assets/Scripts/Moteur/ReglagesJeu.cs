@@ -23,8 +23,8 @@ public class Tete
     [Tooltip("Ce qui la distingue des autres têtes. C'est le nom écrit dans le journal.")]
     public string description;
 
-    [Tooltip("Son numéro dans le journal. Le code du numpad = les numéros des têtes tombées, dans l'ordre de chute.\n" +
-             "Un chiffre de 1 à 9, différent pour chaque tête (pas de 0 : il disparaîtrait au début du code envoyé à TouchDesigner).")]
+    [Tooltip("Son numéro dans le journal. Le code du numpad = les numéros des 2 têtes tombées, dans l'ordre de chute (4 chiffres).\n" +
+             "DEUX chiffres (10 à 99), différent pour chaque tête. Pas de 0 au début : il disparaîtrait du code envoyé à TouchDesigner.")]
     public string numero;
 
     [Tooltip("Le prefab de la tête (Assets/Prefabs/Tetes). Seules les têtes tirées au hasard sont créées pendant le jeu.\n" +
@@ -60,29 +60,39 @@ public class ReglagesJeu : MonoBehaviour
     };
 
     [Tooltip("La bonne combinaison : le numéro de chaque couleur dans la liste ci-dessus (0 = la première).\n" +
-             "C'est aussi l'ordre affiché sur les lumières du corridor.")]
-    public int[] ordreCouleurs = { 0, 2, 1 };   // Bleu → Vert → Rouge
+             "C'est aussi l'ordre affiché sur les lumières du corridor.\n" +
+             "Avec « Couleurs Au Hasard » coché, seul le NOMBRE de couleurs compte ici (une par lumière du code) :\n" +
+             "les couleurs elles-mêmes sont tirées au hasard à chaque partie.")]
+    public int[] ordreCouleurs = { 0, 2, 1 };   // Bleu → Vert → Rouge (si pas au hasard)
+
+    [Tooltip("Coché : à chaque partie, la combinaison est tirée au hasard (des couleurs toutes différentes),\n" +
+             "pour que ce ne soit pas toujours la même. Décoché : on garde « Ordre Couleurs » tel quel.")]
+    public bool couleursAuHasard = true;
 
     [Header("Les têtes et le code du numpad (Partie A ét. 4 + Partie B)")]
-    [Tooltip("Les têtes possibles. À chaque partie, 3 sont choisies au hasard : ce sont elles qui tombent, dans un ordre au hasard.\n" +
+    [Tooltip("Les têtes possibles. À chaque partie, 2 sont choisies au hasard : ce sont elles qui tombent, dans un ordre au hasard.\n" +
+             "Chaque tête a un numéro à 2 chiffres : 2 têtes = un code à 4 chiffres.\n" +
              "Le journal montre toutes les têtes avec leur numéro : celles qui ne tombent pas servent de leurres.")]
     public Tete[] tetes =
     {
-        new Tete("Moustachu", "4"),
-        new Tete("Chauve",    "7"),
-        new Tete("Afro",      "2"),
-        new Tete("Lunettes",  "9"),
-        new Tete("Rousse",    "5"),
+        new Tete("Moustachu", "47"),
+        new Tete("Chauve",    "73"),
+        new Tete("Afro",      "25"),
+        new Tete("Lunettes",  "91"),
+        new Tete("Rousse",    "58"),
     };
 
-    /// <summary>Combien de têtes tombent à chaque partie (autant que d'emplacements dans la Timeline).</summary>
-    public const int NombreDeTetesQuiTombent = 3;
+    /// <summary>Combien de têtes tombent à chaque partie (il faut au moins autant d'emplacements sur « Têtes qui tombent »).</summary>
+    public const int NombreDeTetesQuiTombent = 2;
+
+    /// <summary>Combien de chiffres a le numéro de chaque tête (2 têtes × 2 chiffres = un code à 4 chiffres).</summary>
+    public const int ChiffresParTete = 2;
 
     /// <summary>Les têtes tombées cette partie (leur place dans « tetes »), dans l'ordre de chute.</summary>
     public int[] TetesTombees { get; private set; } = new int[0];
 
     /// <summary>
-    /// Le code à entrer sur le numpad cette partie : les numéros des têtes tombées, dans l'ordre de chute (ex. « 924 »).
+    /// Le code à entrer sur le numpad cette partie : les numéros des têtes tombées, dans l'ordre de chute (ex. « 9125 »).
     /// Il change à chaque partie : Unity l'envoie à TouchDesigner (voir l'étape « 3 - Code du numpad »).
     /// </summary>
     public string CodeNumpad { get; private set; } = "";
@@ -91,7 +101,67 @@ public class ReglagesJeu : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        if (couleursAuHasard) ChoisirCouleurs();
+        VerifierNumeros();
         ChoisirTetes();
+    }
+
+    /// <summary>
+    /// Tire au hasard la combinaison de couleurs (autant que dans « ordreCouleurs », toutes différentes).
+    /// Appelé à chaque chargement de la scène, comme les têtes : recommencer = nouvelle combinaison.
+    /// Il reste toujours au moins une couleur hors de la combinaison : c'est la couleur de départ de la lampe.
+    /// </summary>
+    public void ChoisirCouleurs()
+    {
+        int nombre = Mathf.Min(ordreCouleurs.Length, couleursLampe.Length - 1);
+        if (nombre < ordreCouleurs.Length)
+        {
+            Debug.LogError($"[Couleurs] Il faut au moins {ordreCouleurs.Length + 1} couleurs dans ReglagesJeu → Couleurs Lampe " +
+                           $"({ordreCouleurs.Length} pour la combinaison + 1 pour le départ de la lampe).");
+        }
+
+        int[] melange = Melanger(couleursLampe.Length);
+        ordreCouleurs = new int[nombre];
+        for (int i = 0; i < nombre; i++) ordreCouleurs[i] = melange[i];
+
+        Debug.Log($"[Couleurs] Cette partie : {TexteOrdreCouleurs()}");
+    }
+
+    /// <summary>Les nombres 0, 1, 2... (n-1) dans un ordre au hasard (mélange de Fisher-Yates).</summary>
+    static int[] Melanger(int n)
+    {
+        int[] melange = new int[n];
+        for (int i = 0; i < n; i++) melange[i] = i;
+        for (int i = n - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (melange[i], melange[j]) = (melange[j], melange[i]);
+        }
+        return melange;
+    }
+
+    /// <summary>Chaque numéro doit avoir 2 chiffres, sans 0 au début, et être différent des autres.</summary>
+    void VerifierNumeros()
+    {
+        for (int i = 0; i < tetes.Length; i++)
+        {
+            string numero = tetes[i].numero ?? "";
+            bool bonFormat = numero.Length == ChiffresParTete && numero[0] != '0';
+            foreach (char c in numero) bonFormat &= char.IsDigit(c);
+
+            if (!bonFormat)
+            {
+                Debug.LogError($"[Têtes] « {tetes[i].description} » a le numéro « {numero} » : il faut {ChiffresParTete} chiffres, sans 0 au début (ex. 47).");
+            }
+
+            for (int j = 0; j < i; j++)
+            {
+                if (tetes[j].numero == numero)
+                {
+                    Debug.LogError($"[Têtes] « {tetes[i].description} » et « {tetes[j].description} » ont le même numéro ({numero}).");
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -100,14 +170,8 @@ public class ReglagesJeu : MonoBehaviour
     /// </summary>
     public void ChoisirTetes()
     {
-        // Mélanger les places 0, 1, 2, 3, 4 (mélange de Fisher-Yates), puis garder les premières.
-        int[] melange = new int[tetes.Length];
-        for (int i = 0; i < melange.Length; i++) melange[i] = i;
-        for (int i = melange.Length - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            (melange[i], melange[j]) = (melange[j], melange[i]);
-        }
+        // Mélanger les places 0, 1, 2, 3, 4, puis garder les 2 premières.
+        int[] melange = Melanger(tetes.Length);
 
         int nombre = Mathf.Min(NombreDeTetesQuiTombent, melange.Length);
         if (nombre < NombreDeTetesQuiTombent)
@@ -126,7 +190,7 @@ public class ReglagesJeu : MonoBehaviour
         Debug.Log($"[Têtes] Cette partie : {TexteTetesTombees()} → code {CodeNumpad}");
     }
 
-    /// <summary>Ex. : « Lunettes (9) → Afro (2) → Moustachu (4) ».</summary>
+    /// <summary>Ex. : « Lunettes (91) → Afro (25) ».</summary>
     public string TexteTetesTombees()
     {
         string texte = "";

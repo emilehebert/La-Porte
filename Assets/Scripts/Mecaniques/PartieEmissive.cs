@@ -70,6 +70,12 @@ public class PartieEmissive
         }
     }
 
+    /// <summary>La couleur d'origine, plus ou moins forte (0 = éteinte, 1 = normale) : pour les fondus.</summary>
+    public void AllumerAvecForce(float force)
+    {
+        for (int i = 0; i < emplacements.Count; i++) Appliquer(i, couleursDeBase[i] * force);
+    }
+
     public void Eteindre()
     {
         for (int i = 0; i < emplacements.Count; i++) Appliquer(i, Color.black);

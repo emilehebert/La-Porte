@@ -6,7 +6,7 @@ using UnityEngine;
 ///  - Normal  : interrupteur allumé = lumière allumée.
 ///  - Inversé : interrupteur fermé = lumière allumée (donc allumée au début, éteinte quand on lève l'interrupteur).
 ///
-/// L'ampoule (le matériau émissif) s'allume et s'éteint avec la lumière.
+/// L'ampoule (le matériau émissif) s'allume et s'éteint avec la lumière, en fondu (pas d'un coup).
 ///
 /// Fonctionne tout le temps, peu importe l'étape.
 /// À mettre directement sur l'objet de la lumière.
@@ -21,13 +21,19 @@ public class LumiereInterrupteur : MonoBehaviour
              "Vide = l'objet parent de la lumière (ex. : le modèle du ventilateur).")]
     public Renderer ampoule;
 
+    [Tooltip("Durée (secondes) du fondu quand la lumière s'allume ou s'éteint. 0 = instantané.")]
+    public float dureeFondu = 0.4f;
+
     Light lumiere;
     PartieEmissive partieEmissive;
+    float intensiteNormale;
+    float niveau;   // 0 = éteinte, 1 = allumée; glisse vers ce que l'interrupteur demande
 
 
     void Awake()
     {
         lumiere = GetComponent<Light>();
+        intensiteNormale = lumiere.intensity;
 
         if (ampoule == null) ampoule = GetComponentInParent<Renderer>();
         partieEmissive = new PartieEmissive(ampoule, nameof(LumiereInterrupteur));
@@ -35,22 +41,33 @@ public class LumiereInterrupteur : MonoBehaviour
 
     void OnEnable()
     {
-        Capteurs.Interrupteur += QuandInterrupteur;
-        QuandInterrupteur(Capteurs.InterrupteurAllume);   // au départ : même état que l'interrupteur
+        niveau = Cible();   // au départ : directement dans le même état que l'interrupteur, sans fondu
+        Appliquer();
     }
 
-    void OnDisable()
+    void Update()
     {
-        Capteurs.Interrupteur -= QuandInterrupteur;
+        float cible = Cible();
+        if (niveau == cible) return;
+
+        niveau = dureeFondu > 0f ? Mathf.MoveTowards(niveau, cible, Time.deltaTime / dureeFondu) : cible;
+        Appliquer();
     }
 
-    void QuandInterrupteur(bool interrupteurAllume)
+    float Cible()
     {
-        bool allumee = inverser ? !interrupteurAllume : interrupteurAllume;
+        bool allumee = inverser ? !Capteurs.InterrupteurAllume : Capteurs.InterrupteurAllume;
+        return allumee ? 1f : 0f;
+    }
 
-        lumiere.enabled = allumee;
+    void Appliquer()
+    {
+        float force = Mathf.SmoothStep(0f, 1f, niveau);   // début et fin du fondu plus doux
 
-        if (allumee) partieEmissive.Allumer();
+        lumiere.intensity = intensiteNormale * force;
+        lumiere.enabled = force > 0f;
+
+        if (force > 0f) partieEmissive.AllumerAvecForce(force);
         else partieEmissive.Eteindre();
     }
 }

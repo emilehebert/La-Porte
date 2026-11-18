@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Partie B du document : le code du numpad.
 ///
-///   Locataire : décrit les trois têtes tombées (dans l'ordre).
+///   Locataire : décrit les deux têtes tombées (dans l'ordre).
 ///   Visiteur  : retrouve ces personnes dans le journal, et leur numéro;
 ///               entre le code sur le numpad.
 ///
@@ -15,7 +15,7 @@ using UnityEngine;
 public class EtapeCodeNumpad : Etape
 {
     [Header("Envoi du code à TouchDesigner")]
-    [Tooltip("Adresse OSC où Unity envoie le code de la partie (un nombre, ex. 924) :\n" +
+    [Tooltip("Adresse OSC où Unity envoie le code de la partie (un nombre à 4 chiffres, ex. 9125) :\n" +
              "au début de l'étape, puis chaque seconde tant qu'elle dure. Vide = ne rien envoyer.\n" +
              "Il faut un OSCTransmitter sur Jeu → Capteurs (IP et port de l'ordi de TouchDesigner).")]
     public string adresseOscCode = "/code_attendu";

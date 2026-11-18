@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Copie l'intensité d'une autre lumière, à chaque image.
-/// Ex. : « light lefside » et « light rightside » suivent « light 4 »,
+/// Ex. : « light lefside », « light middle » et « light rightside » suivent « light 3 »,
 /// que LumieresCorridor allume et éteint selon la poignée.
 ///
 /// Seule l'intensité est copiée (pas la couleur).
@@ -12,7 +12,7 @@ using UnityEngine;
 [RequireComponent(typeof(Light))]
 public class CopyLightIntensity : MonoBehaviour
 {
-    [Tooltip("L'objet de la lumière à copier (ex. : light 4).")]
+    [Tooltip("L'objet de la lumière à copier (ex. : light 3).")]
     public GameObject MainLight;
 
     Light lumiere;

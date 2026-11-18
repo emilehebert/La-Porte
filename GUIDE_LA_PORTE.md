@@ -39,9 +39,10 @@ Jeu                      Capteurs · ReglagesJeu · GestionnaireEtapes · Pannea
 └── 4 - Porte ouverte              EtapeFin
 
 OSCReceiver              reçoit l'OSC de TouchDesigner (port 7000)
-Lights                   LumieresCorridor (light 1 à light 4)
-light lefside            CopyLightIntensity : copie l'intensité de light 4
-light rightside          CopyLightIntensity : copie l'intensité de light 4
+Lights                   LumieresCorridor (light 1 à light 3 : Rouge, Vert, Bleu)
+light lefside            CopyLightIntensity : copie l'intensité de light 3
+light middle             CopyLightIntensity : copie l'intensité de light 3
+light rightside          CopyLightIntensity : copie l'intensité de light 3
 Light (la lampe sur pied)           LampeSurPied
 Point Light (7)          LumiereInterrupteur (Inverser coché)
 Étincelles de la prise   Particle System + EtincellesPrise (devant « Outlet »)
@@ -68,8 +69,8 @@ Comme dans une escape room : les objets répondent tout le temps, et le « maît
 
 | Objet physique | Effet dans Unity |
 |---|---|
-| **Poignée** (locataire) | Au repos : la lumière du plafond la plus proche de la caméra du corridor est allumée. Tournée vers le haut **ou** vers le bas : la zone éclairée glisse vers le fond du corridor. `light lefside` et `light rightside` suivent l'intensité de `light 4`. |
-| **Interrupteur** (locataire) | **Allumé** : `light 3`, `light 2`, `light 1` prennent les couleurs de la solution, dans l'ordre (Bleu, Vert, Rouge); les autres restent blanches. La lampe sur pied s'allume. `Point Light (7)` s'éteint. Le journal montre la version « lampe allumée ». **Fermé** : tout l'inverse (lumières blanches, lampe éteinte, `Point Light (7)` allumée, version « lampe fermée »). |
+| **Poignée** (locataire) | **Seulement quand l'interrupteur est allumé.** Au repos : la lumière du plafond la plus proche de la caméra du corridor est allumée. Tournée vers le haut **ou** vers le bas : la zone éclairée glisse vers le fond du corridor. `light lefside`, `light middle` et `light rightside` (juste au-dessus de la caméra) suivent l'intensité de `light 3`, la plus proche. **Interrupteur fermé** (tout le corridor allumé) : tourner la poignée fait **scintiller** les lumières à sa position, avec le même scintillement que la lampe sur pied. Ça montre au locataire que la poignée fait quelque chose (réglages *Scintillement* sur `Lights → LumieresCorridor`). |
+| **Interrupteur** (locataire) | **Fermé** : **toutes les lumières du corridor sont allumées**, en blanc. **Allumé** : le corridor s'assombrit et seule la zone de la poignée reste éclairée; `light 3`, `light 2`, `light 1` prennent les couleurs de la solution, dans l'ordre (Bleu, Vert, Rouge), les autres restent blanches. Le passage d'un mode à l'autre est progressif (*Vitesse* sur `Lights → LumieresCorridor`). La lampe sur pied s'allume. `Point Light (7)` s'éteint. Le journal montre la version « lampe allumée ». **Fermé** : tout l'inverse (corridor tout allumé en blanc, lampe éteinte, `Point Light (7)` allumée, version « lampe fermée »). |
 | **Heurtoir** (visiteur) | La lampe sur pied tremble (animation `Lamp_interact`). **Allumée** : elle passe à la couleur suivante (en boucle). **Éteinte** : elle tremble ET sa lumière scintille un instant, puis redevient éteinte (pour montrer qu'on peut interagir avec elle; décocher *Scintiller Si Eteinte* sur `LampeSurPied` pour qu'elle tremble seulement). |
 | **Sonnette** (visiteur) | **Lampe éteinte** : des **étincelles** sortent de la prise électrique (« Outlet »), à chaque coup. **Lampe allumée** : pas d'étincelles. À l'étape 1, elle sert aussi à sélectionner la couleur (lampe allumée). |
 
@@ -82,7 +83,7 @@ La lampe sur pied commence sur la **première couleur qui ne fait pas partie de 
 | # | Étape | Ce qui se passe | On passe à la suite quand… | Si l'opérateur saute l'étape |
 |---|---|---|---|---|
 | 0 | Attente des joueurs | Tout est remis à neuf. Les mécaniques marchent déjà. | Premier contact : sonnette, heurtoir, interrupteur (qui change d'état) ou numpad. Ou Page Down. (La poignée ne démarre pas l'expérience.) | — |
-| 1 | Énigme des couleurs | **Locataire** : poignée → lumières du corridor; interrupteur → révèle l'ordre des couleurs et allume la lampe. **Visiteur** : heurtoir → couleur suivante; sonnette → sélectionne la couleur affichée (seulement si la lampe est allumée). | Les 3 couleurs sont sélectionnées dans l'ordre : **Bleu → Vert → Rouge**. | Rien à remettre |
+| 1 | Énigme des couleurs | **Locataire** : interrupteur → révèle l'ordre des couleurs et allume la lampe; poignée → promène la zone éclairée pour voir chaque couleur. **Visiteur** : heurtoir → couleur suivante; sonnette → sélectionne la couleur affichée (seulement si la lampe est allumée). | Les 3 couleurs sont sélectionnées dans l'ordre : **Bleu → Vert → Rouge**. | Rien à remettre |
 | 2 | Indices | Timeline `Indices` (2,1 s) : **3 têtes choisies au hasard** parmi les 5 tombent de la ventilation du corridor, l'une après l'autre, dans un ordre au hasard, et restent pendues à une corde élastique (le heurtoir les fait bouger); le journal tombe de la bibliothèque sur la table de la pièce. | La Timeline est finie | La Timeline est mise à sa dernière image (têtes pendues, journal sur la table) |
 | 3 | Code du numpad | Le locataire décrit les têtes, dans l'ordre où elles sont tombées. Le visiteur trouve leurs numéros dans le journal (l'interrupteur change les personnes lisibles) et entre le code. **Le code change à chaque partie** : Unity l'envoie à TouchDesigner, qui le vérifie. « ENTREZ LE CODE » est affiché dans la pièce. | TouchDesigner envoie « bon code » | Rien à remettre |
 | 4 | Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans, bips de fin. Envoi OSC de la serrure si une adresse est remplie (vide pour l'instant). | Après **30 s**, l'expérience recommence au début | — |

@@ -3,10 +3,13 @@ using UnityEngine;
 /// <summary>
 /// Les lumières au plafond du corridor (l'écran du LOCATAIRE).
 ///
-///  - Poignée au repos : la lumière la plus proche de la caméra du corridor est allumée.
-///    Poignée tournée (vers le haut OU vers le bas) : la zone éclairée avance vers le fond du corridor.
-///  - Interrupteur fermé : lumières blanches.
-///    Interrupteur allumé : un filtre de couleur révèle l'ordre de l'énigme (réglé dans ReglagesJeu).
+///  - Interrupteur fermé : TOUT le corridor est allumé, en blanc.
+///    Tourner la poignée fait SCINTILLER les lumières qui correspondent à sa position
+///    (même scintillement que la lampe sur pied) : ça montre au locataire que la poignée fait quelque chose.
+///  - Interrupteur allumé : un filtre de couleur révèle l'ordre de l'énigme (réglé dans ReglagesJeu),
+///    et seule une zone est éclairée, qui suit la poignée :
+///      poignée au repos : la lumière la plus proche de la caméra du corridor;
+///      poignée tournée (vers le haut OU vers le bas) : la zone avance vers le fond du corridor.
 ///
 /// Fonctionne tout le temps, peu importe l'étape (aucune condition dans le document).
 /// À mettre sur l'objet « Lights ».
@@ -32,10 +35,38 @@ public class LumieresCorridor : MonoBehaviour
     [Tooltip("Combien de lumières sont éclairées autour de la position de la poignée.")]
     public float largeurDegrade = 1.5f;
 
-    [Tooltip("Vitesse à laquelle la zone éclairée glisse vers la position de la poignée.")]
+    [Tooltip("Vitesse à laquelle la zone éclairée glisse vers la position de la poignée,\n" +
+             "et à laquelle le corridor passe de « tout allumé » à « zone qui suit la poignée » (interrupteur).")]
     public float vitesse = 4f;
 
-    float position;   // position actuelle de la zone éclairée, en « numéro de lumière » (0 = la plus proche de la caméra)
+    [Header("Scintillement (interrupteur fermé)")]
+    [Tooltip("Interrupteur fermé : tourner la poignée fait scintiller les lumières à sa position.")]
+    public bool scintillerSiFerme = true;
+
+    [Tooltip("De combien la poignée doit tourner (de -1 à 1) pour faire scintiller. Augmenter si le capteur tremble.")]
+    public float seuilMouvementPoignee = 0.02f;
+
+    [Tooltip("L'intensité pendant un scintillement (1 = normale), dans le temps.\n" +
+             "Par défaut : la même courbe que la lampe sur pied (animation Lamp_interact, 0,5 s).")]
+    public AnimationCurve courbeScintillement = new AnimationCurve(
+        new Keyframe(0f, 1f),
+        new Keyframe(0.033f, 0.51f, -13.4f, -13.4f),
+        new Keyframe(0.05f, 0.33f, -1.2f, -1.2f),
+        new Keyframe(0.1f, 0.31f),
+        new Keyframe(0.117f, 0.54f),
+        new Keyframe(0.133f, 0f),
+        new Keyframe(0.183f, 0.54f),
+        new Keyframe(0.217f, 0.24f),
+        new Keyframe(0.233f, 0.59f),
+        new Keyframe(0.333f, 0.05f),
+        new Keyframe(0.35f, 0.46f, 12.4f, 12.4f),
+        new Keyframe(0.383f, 0.67f, 3.6f, 3.6f),
+        new Keyframe(0.5f, 1f));
+
+    float position;        // position actuelle de la zone éclairée, en « numéro de lumière » (0 = la plus proche de la caméra)
+    float suitLaPoignee;   // 0 = tout le corridor allumé (interrupteur fermé), 1 = seulement la zone de la poignée
+    float[] debutScintillement;   // Time.time du début du scintillement de chaque lumière
+    float dernierAnglePoignee;
 
 
     void OnEnable()  { Capteurs.Interrupteur += QuandInterrupteur; }
@@ -45,6 +76,12 @@ public class LumieresCorridor : MonoBehaviour
     {
         TrierDeLaCameraVersLeFond();
         position = PositionVisee();   // pas de glissement au démarrage
+        suitLaPoignee = Capteurs.InterrupteurAllume ? 1f : 0f;
+        dernierAnglePoignee = Capteurs.AnglePoignee;
+
+        debutScintillement = new float[lumieres.Length];
+        for (int i = 0; i < debutScintillement.Length; i++) debutScintillement[i] = -100f;
+
         MettreAJourCouleurs();
     }
 
@@ -62,8 +99,13 @@ public class LumieresCorridor : MonoBehaviour
     {
         if (lumieres.Length == 0) return;
 
-        // Glisse doucement vers la position de la poignée (même vitesse peu importe les FPS).
-        position = Mathf.Lerp(position, PositionVisee(), 1f - Mathf.Exp(-vitesse * Time.deltaTime));
+        // Glisse doucement vers la position de la poignée, et vers le mode choisi par l'interrupteur
+        // (même vitesse peu importe les FPS).
+        float lissage = 1f - Mathf.Exp(-vitesse * Time.deltaTime);
+        position = Mathf.Lerp(position, PositionVisee(), lissage);
+        suitLaPoignee = Mathf.Lerp(suitLaPoignee, Capteurs.InterrupteurAllume ? 1f : 0f, lissage);
+
+        VerifierPoignee();
 
         for (int i = 0; i < lumieres.Length; i++)
         {
@@ -71,8 +113,39 @@ public class LumieresCorridor : MonoBehaviour
             float force = Mathf.Clamp01(1f - distance / largeurDegrade);
             force = Mathf.SmoothStep(0f, 1f, force);   // bords plus doux
 
-            lumieres[i].intensity = force * intensiteMax;
+            // Interrupteur fermé : toutes à fond (sauf celles qui scintillent). Allumé : seulement la zone de la poignée.
+            lumieres[i].intensity = Mathf.Lerp(Scintillement(i), force, suitLaPoignee) * intensiteMax;
         }
+    }
+
+    /// <summary>Interrupteur fermé + la poignée a tourné : les lumières à sa position scintillent.</summary>
+    void VerifierPoignee()
+    {
+        float angle = Capteurs.AnglePoignee;
+        if (Mathf.Abs(angle - dernierAnglePoignee) <= seuilMouvementPoignee) return;   // ignore le petit bruit du capteur
+        dernierAnglePoignee = angle;
+
+        if (!scintillerSiFerme || Capteurs.InterrupteurAllume || debutScintillement == null) return;
+
+        // La lumière la plus proche de la position de la poignée (les deux, si elle est entre deux).
+        float cible = PositionVisee();
+        for (int i = 0; i < lumieres.Length; i++)
+        {
+            bool correspond = Mathf.Abs(i - cible) < 0.75f;
+            bool dejaEnTrain = Time.time - debutScintillement[i] < DureeScintillement;
+            if (correspond && !dejaEnTrain) debutScintillement[i] = Time.time;   // pas de redémarrage en boucle : il va jusqu'au bout
+        }
+    }
+
+    float DureeScintillement => courbeScintillement.length > 0 ? courbeScintillement[courbeScintillement.length - 1].time : 0f;
+
+    /// <summary>L'intensité de cette lumière à cause du scintillement (1 = normale).</summary>
+    float Scintillement(int i)
+    {
+        if (debutScintillement == null || i >= debutScintillement.Length) return 1f;   // ex. : script recompilé pendant le Play
+
+        float temps = Time.time - debutScintillement[i];
+        return temps < DureeScintillement ? courbeScintillement.Evaluate(temps) : 1f;
     }
 
     void QuandInterrupteur(bool allume)

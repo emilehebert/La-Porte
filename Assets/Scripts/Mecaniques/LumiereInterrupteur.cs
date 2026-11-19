@@ -8,6 +8,10 @@ using UnityEngine;
 ///
 /// L'ampoule (le matériau émissif) s'allume et s'éteint avec la lumière, en fondu (pas d'un coup).
 ///
+/// À partir de l'étape des têtes (ToutAllumer) : l'énigme des couleurs est finie, la lumière se rallume et
+/// reste allumée peu importe l'interrupteur (il faut voir les journaux tomber dans la pièce).
+/// Branché sur « 2 - Indices » : Au Debut et Etat Final → ToutAllumer.
+///
 /// Fonctionne tout le temps, peu importe l'étape.
 /// À mettre directement sur l'objet de la lumière.
 /// </summary>
@@ -28,7 +32,17 @@ public class LumiereInterrupteur : MonoBehaviour
     PartieEmissive partieEmissive;
     float intensiteNormale;
     float niveau;   // 0 = éteinte, 1 = allumée; glisse vers ce que l'interrupteur demande
+    bool toutAllume;   // vrai à partir de l'étape des têtes
 
+
+    /// <summary>
+    /// L'énigme des couleurs est finie : la lumière se rallume (en fondu) et reste allumée, peu importe
+    /// l'interrupteur (jusqu'au rechargement de la scène). Appelé par l'étape des têtes (Au Debut et Etat Final).
+    /// </summary>
+    public void ToutAllumer()
+    {
+        toutAllume = true;
+    }
 
     void Awake()
     {
@@ -56,6 +70,7 @@ public class LumiereInterrupteur : MonoBehaviour
 
     float Cible()
     {
+        if (toutAllume) return 1f;
         bool allumee = inverser ? !Capteurs.InterrupteurAllume : Capteurs.InterrupteurAllume;
         return allumee ? 1f : 0f;
     }

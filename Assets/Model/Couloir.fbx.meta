@@ -47,6 +47,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Journal
+    second: {fileID: 2100000, guid: e5b358ee1e7202d47a4ed48b3392da08, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Journal_face_1
+    second: {fileID: 2100000, guid: e5b358ee1e7202d47a4ed48b3392da08, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Lamp
     second: {fileID: 2100000, guid: 7f495c36f44f52147a3b5f0ac13ff27d, type: 2}
   - first:

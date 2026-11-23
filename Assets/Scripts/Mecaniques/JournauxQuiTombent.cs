@@ -9,6 +9,11 @@ using UnityEngine;
 /// bibliothèque sur la table, couverture vers le haut, dans l'ordre de chute des têtes; les autres restent rangés.
 /// Le journal glisse hors de l'étagère, tombe en tournant et rebondit un peu sur la table.
 ///
+/// Chiffres phosphorescents : le numéro est peint par-dessus le visage (texture d'émission du matériau).
+/// Sur les journaux tombés, il brille en vert quand la lumière de la pièce est éteinte (interrupteur levé),
+/// baisse doucement dans le noir comme de la vraie peinture phosphorescente, et se recharge à la lumière.
+/// Éclairée, la pièce montre les visages; dans le noir, les numéros.
+///
 ///   - « Journaux » : un par tête, DANS LE MÊME ORDRE que ReglagesJeu → Tetes.
 ///   - « Arrivées » : où les journaux atterrissent (objets vides sur la table), dans l'ordre de chute.
 ///     La flèche bleue (avant) d'une arrivée = le haut de l'affiche : la tourner vers le fond de la pièce
@@ -62,6 +67,26 @@ public class JournauxQuiTombent : MonoBehaviour
     [Tooltip("Durée (secondes) du rebond.")]
     public float dureeRebond = 0.18f;
 
+    [Header("Chiffres phosphorescents")]
+    [Tooltip("La lumière de la pièce : les chiffres brillent quand elle est éteinte.\n" +
+             "Vide = la LumiereInterrupteur « inversée » de la scène (Point Light (7)), trouvée toute seule.")]
+    public LumiereInterrupteur lumierePiece;
+
+    [Tooltip("La couleur de la lueur (vert phosphorescent).")]
+    [ColorUsage(false, true)] public Color couleurLueur = new Color(0.55f, 1f, 0.4f);
+
+    [Tooltip("La force de la lueur, pièce dans le noir et peinture « chargée ».")]
+    public float intensiteLueur = 1.2f;
+
+    [Tooltip("Dans le noir, la lueur baisse jusqu'à cette part de sa force (1 = ne baisse pas).")]
+    [Range(0f, 1f)] public float lueurMinimum = 0.55f;
+
+    [Tooltip("Temps (secondes) pour que la lueur baisse de sa force maximum à « Lueur Minimum », dans le noir.")]
+    public float dureeDeclin = 25f;
+
+    [Tooltip("Temps (secondes) de lumière pour recharger complètement la peinture.")]
+    public float dureeRecharge = 2f;
+
 
     /// <summary>
     /// Ce qu'il faut savoir d'un journal pour le poser à plat, couverture en haut. Exprimé dans le repère
@@ -75,11 +100,61 @@ public class JournauxQuiTombent : MonoBehaviour
         public Vector3 normale;        // la couverture regarde par là
         public Vector3 hautAffiche;    // le haut de l'affiche
         public float epaisseur, largeur, hauteur;
+        public int couverture;         // le numéro du matériau de la couverture (celui qui brille)
     }
 
     [HideInInspector] public Mesures[] mesures = new Mesures[0];
     bool[] tombe;
     bool prepare;
+
+    static readonly int idCouleurEmission = Shader.PropertyToID("_EmissionColor");
+    MaterialPropertyBlock bloc;
+    float charge = 1f;   // la peinture phosphorescente : 1 = chargée, baisse dans le noir
+
+
+    void Start()
+    {
+        if (lumierePiece == null)
+        {
+            foreach (LumiereInterrupteur lumiere in FindObjectsByType<LumiereInterrupteur>(FindObjectsSortMode.None))
+            {
+                if (lumierePiece == null || lumiere.inverser) lumierePiece = lumiere;
+            }
+        }
+        AppliquerLueur(0f);   // sur l'étagère : aucun chiffre ne brille
+    }
+
+    /// <summary>
+    /// La lueur suit la lumière de la pièce (même fondu), seulement sur les journaux tombés.
+    /// LateUpdate : après LumiereInterrupteur (Update), pour prendre le niveau de cette image-ci.
+    /// </summary>
+    void LateUpdate()
+    {
+        float noir = lumierePiece != null
+            ? 1f - lumierePiece.Niveau
+            : (Capteurs.InterrupteurAllume ? 1f : 0f);   // sans lumière trouvée : interrupteur levé = noir
+
+        if (noir > 0.5f) charge = Mathf.MoveTowards(charge, lueurMinimum, Time.deltaTime * (1f - lueurMinimum) / Mathf.Max(dureeDeclin, 0.01f));
+        else charge = Mathf.MoveTowards(charge, 1f, Time.deltaTime / Mathf.Max(dureeRecharge, 0.01f));
+
+        AppliquerLueur(noir * charge);
+    }
+
+    void AppliquerLueur(float force)
+    {
+        if (bloc == null) bloc = new MaterialPropertyBlock();
+        for (int i = 0; i < journaux.Length && i < mesures.Length; i++)
+        {
+            if (journaux[i] == null) continue;
+            Renderer rendu = journaux[i].GetComponentInChildren<Renderer>();
+            if (rendu == null) continue;
+
+            bool brille = tombe != null && i < tombe.Length && tombe[i];
+            rendu.GetPropertyBlock(bloc, mesures[i].couverture);
+            bloc.SetColor(idCouleurEmission, brille ? couleurLueur * (intensiteLueur * force) : Color.black);
+            rendu.SetPropertyBlock(bloc, mesures[i].couverture);
+        }
+    }
 
 
     /// <summary>Au début de l'étape : les journaux des têtes tombées tombent sur la table, un après l'autre.</summary>
@@ -328,6 +403,7 @@ public class JournauxQuiTombent : MonoBehaviour
         m.versLeCentre = inverse * (centre - journal.position);
         m.normale = normale;
         m.hautAffiche = haut;
+        m.couverture = couverture;
         m.largeur = max.x - min.x;
         m.epaisseur = max.y - min.y;
         m.hauteur = max.z - min.z;

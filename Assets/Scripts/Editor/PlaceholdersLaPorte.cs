@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 using UnityEngine.Timeline;
 using HauntedPSX.RenderPipelines.PSX.Editor;
 
@@ -15,9 +16,9 @@ using HauntedPSX.RenderPipelines.PSX.Editor;
 ///     un cube blanc (le journal) tombe de la bibliothèque sur la table. C'est une vraie Timeline
 ///     (Assets/Placeholders/Indices.playable) branchée sur l'étape « 2 - Indices ».
 ///   - Partie B ét. X : les pages du journal (texte) s'inversent avec l'interrupteur.
-///   - Numpad : « ENTREZ LE CODE » dans la pièce, « CODE FAUX » si TouchDesigner dit que c'est mauvais.
-///   - Porte ouverte : « PORTE OUVERTE » en vert sur les deux écrans.
 ///   - Sons : des bips générés par le code sur toutes les étapes.
+/// (Plus de texte « CODE FAUX » ni « PORTE OUVERTE ». Menu « La Porte → Retirer les textes placeholder » :
+/// supprime les textes et le journal placeholder d'une scène qui les a encore.)
 ///
 /// Tout est rangé sous « Placeholders (à remplacer) ». Pour remplacer un placeholder :
 /// mettre le vrai objet / son, puis supprimer le placeholder. Annulable avec Ctrl+Z.
@@ -58,8 +59,7 @@ public static class PlaceholdersLaPorte
         Undo.RegisterCreatedObjectUndo(racine, "Créer les placeholders");
 
         AjouterIndices(racine.transform, jeu, camPiece, camCorridor, rapport);
-        AjouterAfficheurNumpad(racine.transform, camPiece, rapport);
-        AjouterPorteOuverte(racine.transform, jeu, camPiece, camCorridor, rapport);
+        // Plus de texte placeholder (« CODE FAUX », « PORTE OUVERTE ») : seulement les sons.
         AjouterSons(racine.transform, jeu, rapport);
 
         AssetDatabase.SaveAssets();
@@ -228,51 +228,72 @@ public static class PlaceholdersLaPorte
     }
 
 
-    // ---------- Numpad : « ENTREZ LE CODE » / « CODE FAUX » ----------
+    // ---------- Retirer les textes placeholder ----------
 
-    static void AjouterAfficheurNumpad(Transform racine, Camera camPiece, List<string> rapport)
+    /// <summary>
+    /// Menu « La Porte → Retirer les textes placeholder » : supprime tous les textes affichés par les
+    /// placeholders (« PORTE OUVERTE », afficheur du numpad « CODE FAUX », pages du journal) et l'ancien
+    /// journal placeholder (cube), remplacé par les vrais journaux. Les sons (bips) restent.
+    /// Annulable avec Ctrl+Z. Ensuite : Ctrl+S.
+    /// </summary>
+    [MenuItem("La Porte/Retirer les textes placeholder")]
+    static void RetirerTextes()
     {
-        Vector3 position = DevantCamera(camPiece, 1.6f, -0.6f);   // en bas de l'écran
-        TextMesh texte = Texte("Afficheur du numpad", racine, TailleALEcran(camPiece, position, 0.08f), Color.cyan);
-        texte.transform.SetPositionAndRotation(position, FaceA(camPiece));
-
-        AfficheurNumpadPlaceholder afficheur = texte.gameObject.AddComponent<AfficheurNumpadPlaceholder>();
-        afficheur.texte = texte;
-        rapport.Add("✔ Numpad : « ENTREZ LE CODE » et « CODE FAUX » affichés dans la pièce");
-    }
-
-
-    // ---------- Porte ouverte ----------
-
-    static void AjouterPorteOuverte(Transform racine, GestionnaireEtapes jeu, Camera camPiece, Camera camCorridor, List<string> rapport)
-    {
-        GameObject[] messages =
+        Transform racine = null;
+        foreach (Transform t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            MessagePorte("Porte ouverte (pièce)", racine, camPiece),
-            MessagePorte("Porte ouverte (corridor)", racine, camCorridor),
-        };
-
-        EtapeFin fin = jeu.GetComponentInChildren<EtapeFin>(true);
-        if (fin != null)
-        {
-            Undo.RecordObject(fin, "Brancher la porte ouverte");
-            fin.objetsAAfficher = messages;
-            rapport.Add("✔ Porte ouverte : « PORTE OUVERTE » en vert sur les deux écrans");
+            if (t.name == NomRacine && !EditorUtility.IsPersistent(t)) racine = t;
         }
-        else
-        {
-            rapport.Add("✘ Aucune EtapeFin : la porte ouverte n'est pas branchée");
-        }
-    }
 
-    static GameObject MessagePorte(string nom, Transform racine, Camera camera)
-    {
-        Vector3 position = DevantCamera(camera, 2f, 0f);   // au centre de l'écran
-        TextMesh texte = Texte(nom, racine, TailleALEcran(camera, position, 0.15f), Color.green);
-        texte.text = "PORTE OUVERTE";
-        texte.transform.SetPositionAndRotation(position, FaceA(camera));
-        texte.gameObject.SetActive(false);   // apparaît à l'étape « Porte ouverte »
-        return texte.gameObject;
+        List<GameObject> aRetirer = new List<GameObject>();
+        foreach (TextMesh texte in Object.FindObjectsByType<TextMesh>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (EditorUtility.IsPersistent(texte)) continue;
+            if (racine != null && texte.transform.IsChildOf(racine)) aRetirer.Add(texte.gameObject);
+        }
+        foreach (JournalPlaceholder journal in Object.FindObjectsByType<JournalPlaceholder>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (!EditorUtility.IsPersistent(journal)) aRetirer.Add(journal.gameObject);
+        }
+        // seulement les plus hauts (un enfant part avec son parent)
+        aRetirer.RemoveAll(objet => aRetirer.Exists(autre => autre != objet && objet.transform.IsChildOf(autre.transform)));
+
+        if (aRetirer.Count == 0)
+        {
+            EditorUtility.DisplayDialog("La Porte", "Aucun texte placeholder dans la scène. Rien n'a été changé.", "OK");
+            return;
+        }
+
+        Undo.SetCurrentGroupName("Retirer les textes placeholder");
+        int groupeUndo = Undo.GetCurrentGroup();
+        List<string> rapport = new List<string>();
+
+        // L'étape de fin ne doit plus essayer d'afficher les « PORTE OUVERTE ».
+        foreach (EtapeFin fin in Object.FindObjectsByType<EtapeFin>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (fin.objetsAAfficher == null) continue;
+            List<GameObject> gardes = new List<GameObject>();
+            foreach (GameObject objet in fin.objetsAAfficher)
+            {
+                if (objet != null && !aRetirer.Exists(r => objet.transform.IsChildOf(r.transform))) gardes.Add(objet);
+            }
+            if (gardes.Count == fin.objetsAAfficher.Length) continue;
+            Undo.RecordObject(fin, "Retirer les textes placeholder");
+            fin.objetsAAfficher = gardes.ToArray();
+            EditorUtility.SetDirty(fin);
+            rapport.Add($"✔ « {fin.Nom} » : plus de texte à afficher quand la porte s'ouvre");
+        }
+
+        foreach (GameObject objet in aRetirer)
+        {
+            rapport.Add($"✔ Supprimé : « {objet.name} »");
+            Undo.DestroyObjectImmediate(objet);
+        }
+
+        Undo.CollapseUndoOperations(groupeUndo);
+        EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+        EditorUtility.DisplayDialog("La Porte — textes placeholder retirés",
+            string.Join("\n", rapport) + "\n\nLes sons (bips) restent. Sauvegardez la scène (Ctrl+S).", "OK");
     }
 
 

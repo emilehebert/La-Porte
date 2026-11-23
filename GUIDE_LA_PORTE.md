@@ -49,7 +49,7 @@ Point Light (7)          LumiereInterrupteur (Inverser coché)
 Étincelles de la prise   Particle System + EtincellesPrise (devant « Outlet »)
 Room Camera              Display 1 : la pièce (VISITEUR)
 Corridor Camera          Display 2 : le corridor (LOCATAIRE)
-Placeholders (à remplacer)          afficheur du numpad, porte ouverte, bips (le journal placeholder est désactivé)
+Placeholders (à remplacer)          bips seulement (plus de texte : menu « Retirer les textes placeholder »)
 Head_01 à Head_05        les 5 têtes : 2 tombent au hasard à chaque partie (TetesQuiTombent)
 Journaux qui tombent     les 5 journaux de la bibliothèque (une affiche par tête) + 2 arrivées sur la table (JournauxQuiTombent)
 ```
@@ -72,7 +72,7 @@ Comme dans une escape room : les objets répondent tout le temps, et le « maît
 | Objet physique | Effet dans Unity |
 |---|---|
 | **Poignée** (locataire) | **Seulement quand l'interrupteur est allumé.** Au repos : la lumière du plafond la plus proche de la caméra du corridor est allumée. Tournée vers le haut **ou** vers le bas : la zone éclairée glisse vers le fond du corridor. `light lefside`, `light middle` et `light rightside` (juste au-dessus de la caméra) suivent l'intensité de `light 3`, la plus proche. **Interrupteur fermé** (tout le corridor allumé) : tourner la poignée fait **scintiller** les lumières à sa position, avec le même scintillement que la lampe sur pied. Ça montre au locataire que la poignée fait quelque chose (réglages *Scintillement* sur `Lights → LumieresCorridor`). |
-| **Interrupteur** (locataire) | **Fermé** : **toutes les lumières du corridor sont allumées**, en blanc. **Allumé** : le corridor s'assombrit et seule la zone de la poignée reste éclairée; `light 3`, `light 2`, `light 1` prennent les couleurs de la solution, dans l'ordre (Bleu, Vert, Rouge), les autres restent blanches. Le passage d'un mode à l'autre est progressif (*Vitesse* sur `Lights → LumieresCorridor`). La lampe sur pied s'allume. `Point Light (7)` s'éteint. **Fermé** : tout l'inverse (corridor tout allumé en blanc, lampe éteinte, `Point Light (7)` allumée). **À partir de l'étape 2**, l'interrupteur ne change plus l'éclairage : le corridor (tout en blanc) et `Point Light (7)` sont rallumés et le restent, pour qu'on voie les têtes et les journaux tomber. |
+| **Interrupteur** (locataire) | **Fermé** : **toutes les lumières du corridor sont allumées**, en blanc. **Allumé** : le corridor s'assombrit et seule la zone de la poignée reste éclairée; `light 3`, `light 2`, `light 1` prennent les couleurs de la solution, dans l'ordre (Bleu, Vert, Rouge), les autres restent blanches. Le passage d'un mode à l'autre est progressif (*Vitesse* sur `Lights → LumieresCorridor`). La lampe sur pied s'allume. `Point Light (7)` s'éteint. **Fermé** : tout l'inverse (corridor tout allumé en blanc, lampe éteinte, `Point Light (7)` allumée). **Pendant l'étape 2**, l'interrupteur ne change rien : `Point Light (7)` est rallumée pour qu'on voie les journaux tomber, et le corridor est tout en blanc (il le reste jusqu'à la fin). **À partir de l'étape 3**, l'interrupteur commande de nouveau la pièce : **levé** = `Point Light (7)` éteinte (lampe sur pied allumée) et les **chiffres phosphorescents** des journaux tombés brillent en vert; **baissé** = `Point Light (7)` allumée, on voit les visages, les chiffres sont invisibles. |
 | **Heurtoir** (visiteur) | La lampe sur pied tremble (animation `Lamp_interact`). **Allumée** : elle passe à la couleur suivante (en boucle). **Éteinte** : elle tremble ET sa lumière scintille un instant, puis redevient éteinte (pour montrer qu'on peut interagir avec elle; décocher *Scintiller Si Eteinte* sur `LampeSurPied` pour qu'elle tremble seulement). |
 | **Sonnette** (visiteur) | **Lampe éteinte** : des **étincelles** sortent de la prise électrique (« Outlet »), à chaque coup. **Lampe allumée** : pas d'étincelles. À l'étape 1, elle sert aussi à sélectionner la couleur (lampe allumée). |
 
@@ -87,8 +87,8 @@ La lampe sur pied commence sur la **première couleur qui ne fait pas partie de 
 | 0 | Attente des joueurs | Tout est remis à neuf. Les mécaniques marchent déjà. | Premier contact : sonnette, heurtoir, interrupteur (qui change d'état) ou numpad. Ou Page Down. (La poignée ne démarre pas l'expérience.) | — |
 | 1 | Énigme des couleurs | **Locataire** : interrupteur → révèle l'ordre des couleurs et allume la lampe; poignée → promène la zone éclairée pour voir chaque couleur. **Visiteur** : heurtoir → couleur suivante; sonnette → sélectionne la couleur affichée (seulement si la lampe est allumée). | Les 3 couleurs sont sélectionnées dans l'ordre : **Bleu → Vert → Rouge**. | Rien à remettre |
 | 2 | Indices | Timeline `Indices` (2,1 s) : la pièce et le corridor se rallument (la lampe validée, l'interrupteur est levé et la pièce était sombre); **2 têtes choisies au hasard** parmi les 5 tombent de la ventilation du corridor, l'une après l'autre, dans un ordre au hasard, et restent pendues à une corde élastique (le heurtoir les fait bouger); **en même temps**, le journal de chaque tête tombe de la bibliothèque sur la table de la pièce (JournauxQuiTombent). | La Timeline est finie | La Timeline est mise à sa dernière image (têtes pendues, journaux sur la table) |
-| 3 | Code du numpad | Le locataire décrit les têtes, dans l'ordre où elles sont tombées. Le visiteur trouve leurs numéros sur les journaux tombés (une affiche « HELP WANTED » par tête, avec son numéro) et entre le code. **Le code change à chaque partie** : Unity l'envoie à TouchDesigner, qui le vérifie. « ENTREZ LE CODE » est affiché dans la pièce. | TouchDesigner envoie « bon code » | Rien à remettre |
-| 4 | Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans, bips de fin. Envoi OSC de la serrure si une adresse est remplie (vide pour l'instant). | Après **30 s**, l'expérience recommence au début | — |
+| 3 | Code du numpad | Le locataire décrit les têtes, dans l'ordre où elles sont tombées. Le visiteur trouve leurs numéros sur les journaux tombés : à la lumière il reconnaît les visages, dans le noir (interrupteur levé) il lit le numéro phosphorescent peint sur chaque visage. Il entre le code. **Le code change à chaque partie** : Unity l'envoie à TouchDesigner, qui le vérifie. Aucun texte n'est affiché : seulement des bips (bon / mauvais code). | TouchDesigner envoie « bon code » | Rien à remettre |
+| 4 | Porte ouverte | Bips de fin (pas de texte; mettre les vrais objets ou une Timeline de fin sur l'étape). Envoi OSC de la serrure si une adresse est remplie (vide pour l'instant). | Après **30 s**, l'expérience recommence au début | — |
 
 ### Détails de l'énigme des couleurs (étape 1)
 
@@ -101,7 +101,7 @@ La lampe sur pied commence sur la **première couleur qui ne fait pas partie de 
 ### Détails du numpad (étape 3)
 
 - **Bon code** : 3 bips qui montent → étape 4.
-- **Mauvais code** : 2 bips graves + « CODE FAUX » pendant 1,5 s, puis « ENTREZ LE CODE ». On peut réessayer autant qu'on veut.
+- **Mauvais code** : 2 bips graves (pas de texte). On peut réessayer autant qu'on veut.
 
 ### Recommencer
 
@@ -190,13 +190,11 @@ Dans le build, `ActiverEcrans` allume le 2e écran au démarrage. Le build s'ouv
 
 ## 8. Placeholders de test (à remplacer)
 
-Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste du début à la fin.
+Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste du début à la fin. **Il n'y a plus aucun texte placeholder à l'écran** : le menu **La Porte → Retirer les textes placeholder** supprime « PORTE OUVERTE », l'afficheur du numpad (« CODE FAUX ») et l'ancien journal placeholder (cube + pages), et les retire de l'étape « 4 - Porte ouverte » (annulable avec Ctrl+Z, puis Ctrl+S).
 
 | Ce qui manque | Placeholder | Comment tester |
 |---|---|---|
-| Retour du numpad | « ENTREZ LE CODE » en bas de l'écran de la pièce (seulement à l'étape 3), « CODE FAUX » 1,5 s si c'est mauvais | **B** / **M** |
-| Porte ouverte | « PORTE OUVERTE » en vert sur les deux écrans | Bon code (**B**) |
-| Sons | Bips générés par le code (sous `Sons (bips)`) | Toutes les étapes |
+| Sons | Bips générés par le code (sous `Sons (bips)`) : bon / mauvais code, porte ouverte... | Toutes les étapes (**B** / **M** au numpad) |
 
 ### Les têtes
 
@@ -220,7 +218,7 @@ Réglages sur `Têtes qui tombent → TetesQuiTombent` :
 
 ### Les journaux
 
-Un journal par tête dans la bibliothèque, avec sur la couverture l'affiche « HELP WANTED » de la tête (sa photo et son numéro, en très gros pour rester lisible en basse résolution). À l'étape 2, **les journaux des 2 têtes tombées** glissent hors de l'étagère et tombent sur la table, couverture en haut, **chacun en même temps que sa tête** dans le corridor; les 3 autres restent rangés. Si on saute l'étape, ils sont posés directement sur la table.
+Un journal par tête dans la bibliothèque, avec sur la couverture l'affiche « HELP WANTED » de la tête : un très grand portrait, **sans numéro imprimé** (« APPLICANT REF. No. ____ » est laissé en blanc). Le numéro est griffonné à la main par-dessus le visage, en peinture phosphorescente : invisible à la lumière, il brille en vert quand `Point Light (7)` est éteinte (interrupteur levé), seulement sur les journaux tombés. Dans le noir, la lueur baisse doucement (comme de la vraie peinture phosphorescente) et se recharge à la lumière. À l'étape 2, **les journaux des 2 têtes tombées** glissent hors de l'étagère et tombent sur la table, couverture en haut, **chacun en même temps que sa tête** dans le corridor; les 3 autres restent rangés. Si on saute l'étape, ils sont posés directement sur la table.
 
 Les journaux sont **plus grands** que celui du modèle (`Agrandissement` en haut de `Assets/Scripts/Editor/JournauxLaPorte.cs`, 1,35 voulu) : le menu le limite tout seul pour que le journal debout ne touche pas la planche du dessus (environ x1,15 avec l'étagère actuelle : 38,7 cm entre les planches). Sur la table, les 2 journaux sont posés côte à côte, alignés sur les bords de la table, sans se chevaucher.
 
@@ -229,9 +227,10 @@ Le menu **La Porte → Brancher les journaux** fait tout (on peut le refaire san
 - crée les matériaux `Assets/Materials/Journal/Journal_<numéro>_<nom>.mat` (copie du matériau de la couverture du journal du décor, avec l'affiche `Assets/Textures/Journal/Affiche_<numéro>_<nom>.png`) et `Journal_tranche.mat` (les côtés, couleur papier);
 - range 5 copies du journal du décor (modèle `Couloir`, caché ensuite) à côté de lui sur l'étagère, dans l'ordre de `ReglagesJeu → Tetes`, sous `Journaux qui tombent`;
 - crée 2 `Arrivée journal` sur la table, tournées pour que l'affiche se lise à l'endroit depuis la Room Camera;
-- branche l'étape « 2 - Indices » (Au Debut → Lacher, Etat Final → PoserSurLaTable), ainsi que le rallumage de la pièce et du corridor (Au Debut et Etat Final → `ToutAllumer` sur `Point Light (7)` et sur `Lights`), et désactive le journal placeholder.
+- met le chiffre phosphorescent (`Assets/Textures/Journal/Chiffre_<numéro>_<nom>.png`, blanc sur noir) en texture d'émission de chaque couverture;
+- branche l'étape « 2 - Indices » (Au Debut → Lacher, Etat Final → PoserSurLaTable), le corridor (Au Debut et Etat Final → `Lights` → `ToutAllumer`) et la pièce **pendant l'étape seulement** (Au Debut → `Point Light (7)` → `ToutAllumer`, A La Fin → `SuivreInterrupteur`), et désactive le journal placeholder.
 
-Les journaux partent toujours de la place du journal **dans le modèle Couloir** (sur l'étagère), même si le journal du décor a été déplacé dans la scène. Les journaux et les arrivées déjà créés ne sont pas déplacés (on peut les ajuster à la main), sauf si les journaux ne sont plus dans la bibliothèque ou pas à la bonne taille : refaire le menu les range à nouveau et recalcule les arrivées. **Changer un numéro ou une affiche** : regénérer les affiches (`La Porte/Textures/Journal/generer_help_wanted.py`), les copier dans `Assets/Textures/Journal`, puis refaire le menu.
+Les journaux partent toujours de la place du journal **dans le modèle Couloir** (sur l'étagère), même si le journal du décor a été déplacé dans la scène. Les journaux et les arrivées déjà créés ne sont pas déplacés (on peut les ajuster à la main), sauf si les journaux ne sont plus dans la bibliothèque ou pas à la bonne taille : refaire le menu les range à nouveau et recalcule les arrivées. **Changer un numéro ou une affiche** : regénérer les affiches (`La Porte/Textures/Journal/generer_affiches_phospho.py`), copier `Proposition_phospho/Affiche_*.png` et `Chiffre_*.png` dans `Assets/Textures/Journal`, puis refaire le menu.
 
 - **Déplacer / tourner une arrivée** = choisir où le journal atterrit. La flèche bleue (avant) = le haut de l'affiche. Sélectionner `Journaux qui tombent` pour voir, en jaune, les journaux posés.
 
@@ -244,6 +243,9 @@ Réglages sur `Journaux qui tombent → JournauxQuiTombent` :
 | Durée Sortie / Distance Sortie / Bascule | Le journal glisse hors de l'étagère en penchant vers la pièce |
 | Élan / Gravité | Petit saut vers le haut au départ, puis la chute (plus de gravité = plus rapide) |
 | Rebond / Durée Rebond | Le petit rebond sur la table (0 = aucun) |
+| Lumiere Piece | La lumière qui commande les chiffres (vide = `Point Light (7)`, trouvée toute seule) : éteinte = les chiffres brillent |
+| Couleur Lueur / Intensite Lueur | Le vert des chiffres et leur force dans le noir |
+| Lueur Minimum / Duree Declin / Duree Recharge | Dans le noir, la lueur baisse jusqu'à ce minimum en « Durée Déclin » secondes; à la lumière, elle se recharge en « Durée Recharge » secondes |
 
 ### Remplacer un placeholder
 
@@ -292,7 +294,7 @@ Aussi disponibles : `Sortir()`, `QuandHeurtoir()`, `QuandInterrupteur(bool allum
 - [ ] Ce qui se passe quand le visiteur se **trompe de couleur** (pour l'instant : 3 clignotements et on recommence au début de la combinaison).
 - [x] Modéliser les **têtes** (3 tombent au hasard à la place des cubes).
 - [x] Le **journal** : une affiche par tête, les journaux des têtes tombées tombent sur la table (menu **La Porte → Brancher les journaux**, section 8).
-- [ ] Décider si l'interrupteur doit encore changer quelque chose sur les journaux (l'ancienne idée « page floue A / B » de `JournalPersonnages` n'est pas utilisée par les affiches).
+- [x] L'interrupteur et les journaux : remplace l'idée « page floue A / B » (`JournalPersonnages`, plus utilisé) par les chiffres phosphorescents (lumière = visages, noir = numéros).
 - [ ] La **porte qui s'ouvre** et les **sons**.
 - [ ] Choisir la caméra de la pièce : `Camera Room` (du modèle Blender) ou `Room Camera`.
 - [ ] Une **serrure électrique**? Si oui, donner l'adresse OSC.

@@ -10,7 +10,8 @@ using UnityEngine.Playables;
 ///   - corridor : deux têtes tombent de la ventilation au plafond (physique : TetesQuiTombent, branché ci-dessous);
 ///   - pièce    : un journal tombe de la bibliothèque sur la table (Timeline).
 ///
-/// Ce qui n'est pas dans la Timeline (ex. : la physique) se branche sur « Au Debut » et « Etat Final ».
+/// Ce qui n'est pas dans la Timeline (ex. : la physique) se branche sur « Au Debut » et « Etat Final »;
+/// ce qui ne vaut que pendant l'étape (ex. : la lumière de la pièce forcée allumée) se défait dans « A La Fin ».
 ///
 /// Important : sur le PlayableDirector, DÉCOCHER « Play On Awake ».
 /// Pas encore de Timeline? Laisser vide : l'étape attend « dureeSansTimeline » secondes.
@@ -33,6 +34,10 @@ public class EtapeTimeline : Etape
              "Ex. : Têtes qui tombent → TetesQuiTombent.PoserAuSol.")]
     public UnityEvent etatFinal = new UnityEvent();
 
+    [Tooltip("Appelé quand on quitte l'étape (finie, ou sautée pendant qu'elle jouait) : défaire ce qui ne vaut que\n" +
+             "pendant l'étape. Ex. : Point Light (7) → LumiereInterrupteur.SuivreInterrupteur.")]
+    public UnityEvent aLaFin = new UnityEvent();
+
 
     void Awake()
     {
@@ -46,6 +51,11 @@ public class EtapeTimeline : Etape
     {
         auDebut.Invoke();
         StartCoroutine(Deroulement());
+    }
+
+    protected override void Sortir()
+    {
+        aLaFin.Invoke();
     }
 
     IEnumerator Deroulement()

@@ -12,13 +12,16 @@ using UnityEngine.Events;
 /// Met un journal par tête dans la bibliothèque, avec l'affiche HELP WANTED de la tête sur la couverture,
 /// et fait tomber sur la table les journaux des têtes tombées. On peut le refaire sans danger.
 ///   1. Matériaux (Assets/Materials/Journal) : « Journal_47_Moustachu »... (copie du matériau de la couverture
-///      du journal du décor, avec l'affiche Assets/Textures/Journal/Affiche_47_Moustachu.png) et « Journal_tranche »
-///      (les côtés, couleur papier). Refaire le menu après avoir changé un numéro ou une affiche.
+///      du journal du décor, avec l'affiche Assets/Textures/Journal/Affiche_47_Moustachu.png et, en émission,
+///      le chiffre phosphorescent Chiffre_47_Moustachu.png) et « Journal_tranche » (les côtés, couleur papier).
+///      Refaire le menu après avoir changé un numéro ou une affiche.
 ///   2. « Journaux qui tombent » : 5 copies du journal du décor, rangées sur l'étagère à la place qu'il a
 ///      dans le modèle Couloir (même s'il a été déplacé dans la scène; il est caché), et 2 « Arrivée journal »
 ///      sur le plateau de la table, côté bibliothèque, tournées pour que l'affiche se lise depuis la Room Camera.
 ///   3. L'étape « 2 - Indices » fait tomber les journaux au début (Au Debut → Lacher)
-///      et les pose sur la table si on la saute (Etat Final → PoserSurLaTable).
+///      et les pose sur la table si on la saute (Etat Final → PoserSurLaTable). Pendant l'étape, la lumière de
+///      la pièce est forcée allumée (Au Debut → ToutAllumer); en la quittant, elle suit de nouveau l'interrupteur
+///      (A La Fin → SuivreInterrupteur) : levé = noir = chiffres phosphorescents visibles.
 ///   4. Le journal placeholder (cube + textes) est désactivé.
 ///
 /// Les journaux et les arrivées déjà créés ne sont pas déplacés (on peut les ajuster à la main),
@@ -44,6 +47,9 @@ public static class JournauxLaPorte
     const float BordTable = 0.06f;           // espace entre un journal posé et le bord de la table (m)
     const float EcartSurLaTable = 0.05f;     // espace entre deux journaux posés sur la table (m)
     static readonly Color CouleurPapier = new Color(0.92f, 0.9f, 0.84f);
+    const string IdTextureEmission = "_EmissionTexture";
+    const string IdCouleurEmission = "_EmissionColor";
+    static readonly Color CouleurLueur = new Color(0.55f, 1f, 0.4f);   // même vert que JournauxQuiTombent
     static readonly string[] ProprietesTexture = { "_MainTex", "_BaseMap" };
     static readonly string[] ProprietesCouleur = { "_MainColor", "_Color", "_BaseColor" };
 
@@ -79,8 +85,9 @@ public static class JournauxLaPorte
 
         // 1. Les matériaux
         CreerDossier(DossierMateriaux);
-        Material tranche = Materiau($"{DossierMateriaux}/Journal_tranche.mat", modeleMateriau, null);
+        Material tranche = Materiau($"{DossierMateriaux}/Journal_tranche.mat", modeleMateriau, null, null);
         Material[] couvertures = new Material[reglages.tetes.Length];
+        int chiffres = 0;
         for (int i = 0; i < reglages.tetes.Length; i++)
         {
             Tete tete = reglages.tetes[i];
@@ -89,9 +96,15 @@ public static class JournauxLaPorte
             {
                 rapport.Add($"✘ Pas d'affiche « Affiche_{tete.numero}_... » dans {DossierAffiches} pour « {tete.description} » : couverture blanche");
             }
-            couvertures[i] = Materiau($"{DossierMateriaux}/Journal_{tete.numero}_{NomDeFichier(tete.description)}.mat", modeleMateriau, affiche);
+            Texture2D chiffre = TrouverChiffre(tete.numero);
+            if (chiffre == null)
+            {
+                rapport.Add($"✘ Pas de chiffre phosphorescent « Chiffre_{tete.numero}_... » dans {DossierAffiches} pour « {tete.description} » : rien ne brillera");
+            }
+            else chiffres++;
+            couvertures[i] = Materiau($"{DossierMateriaux}/Journal_{tete.numero}_{NomDeFichier(tete.description)}.mat", modeleMateriau, affiche, chiffre);
         }
-        rapport.Add($"✔ {couvertures.Length} matériaux de couverture + Journal_tranche dans {DossierMateriaux}");
+        rapport.Add($"✔ {couvertures.Length} matériaux de couverture ({chiffres} avec chiffre phosphorescent) + Journal_tranche dans {DossierMateriaux}");
 
         // 2. Le groupe, les journaux sur l'étagère, les arrivées sur la table
         Transform groupe = TrouverDansLaScene(NomGroupe);
@@ -160,8 +173,11 @@ public static class JournauxLaPorte
 
     // ---------- 1. Matériaux et affiches ----------
 
-    /// <summary>Crée ou met à jour un matériau : copie du modèle (même shader PS1), avec cette affiche (ou couleur papier).</summary>
-    static Material Materiau(string chemin, Material modele, Texture2D affiche)
+    /// <summary>
+    /// Crée ou met à jour un matériau : copie du modèle (même shader PS1), avec cette affiche (ou couleur papier)
+    /// et, s'il y en a un, le chiffre phosphorescent en texture d'émission (JournauxQuiTombent règle sa lueur).
+    /// </summary>
+    static Material Materiau(string chemin, Material modele, Texture2D affiche, Texture2D chiffre)
     {
         Material materiau = AssetDatabase.LoadAssetAtPath<Material>(chemin);
         if (materiau == null)
@@ -183,14 +199,37 @@ public static class JournauxLaPorte
         {
             if (materiau.HasProperty(propriete)) materiau.SetColor(propriete, affiche != null ? Color.white : CouleurPapier);
         }
+
+        // Émission (shader PSXLit : _EmissionTexture × _EmissionColor, mot-clé _EMISSION).
+        // La couleur du matériau sert d'aperçu dans l'éditeur; en jeu, JournauxQuiTombent la règle journal par journal.
+        if (materiau.HasProperty(IdTextureEmission))
+        {
+            materiau.SetTexture(IdTextureEmission, chiffre);
+            if (chiffre != null)
+            {
+                materiau.SetColor(IdCouleurEmission, CouleurLueur);
+                materiau.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;   // le shader PSX garde alors _EMISSION
+                materiau.EnableKeyword("_EMISSION");
+            }
+            else
+            {
+                materiau.SetColor(IdCouleurEmission, Color.black);
+                materiau.globalIlluminationFlags = MaterialGlobalIlluminationFlags.EmissiveIsBlack;
+                materiau.DisableKeyword("_EMISSION");
+            }
+        }
         EditorUtility.SetDirty(materiau);
         return materiau;
     }
 
     /// <summary>L'affiche « Affiche_47_... » (de preference dans Assets/Textures/Journal), réglée pour ne pas baver sur les bords.</summary>
-    static Texture2D TrouverAffiche(string numero)
+    static Texture2D TrouverAffiche(string numero) => TrouverTexture($"Affiche_{numero}_");
+
+    /// <summary>Le chiffre phosphorescent « Chiffre_47_... » (blanc sur noir), ou null s'il n'y en a pas.</summary>
+    static Texture2D TrouverChiffre(string numero) => TrouverTexture($"Chiffre_{numero}_");
+
+    static Texture2D TrouverTexture(string prefixe)
     {
-        string prefixe = $"Affiche_{numero}_";
         string trouve = null;
         foreach (string guid in AssetDatabase.FindAssets($"{prefixe} t:Texture2D"))
         {
@@ -620,7 +659,9 @@ public static class JournauxLaPorte
         rapport.Add($"✔ « {etape.Nom} » fait tomber les journaux au début, et les pose sur la table si on saute l'étape");
 
         // La lampe validée, l'interrupteur est levé : la lumière de la pièce (inversée) est éteinte.
-        // À l'étape 2 elle se rallume (et le corridor aussi) pour qu'on voie les têtes ET les journaux tomber.
+        // PENDANT l'étape 2, elle est forcée allumée (et le corridor aussi) pour qu'on voie les têtes ET les journaux tomber;
+        // en quittant l'étape, elle suit de nouveau l'interrupteur (levé = noir = chiffres phosphorescents visibles).
+        // Pas dans Etat Final : sautée, l'étape 2 est finie et l'interrupteur doit déjà commander la lumière.
         int lumieres = 0;
         foreach (LumiereInterrupteur lumiere in Object.FindObjectsByType<LumiereInterrupteur>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
@@ -628,9 +669,10 @@ public static class JournauxLaPorte
             {
                 UnityEventTools.AddPersistentListener(etape.auDebut, lumiere.ToutAllumer);
             }
-            if (!APourAppel(etape.etatFinal, lumiere, nameof(LumiereInterrupteur.ToutAllumer)))
+            RetirerAppel(etape.etatFinal, lumiere, nameof(LumiereInterrupteur.ToutAllumer));   // ancienne version du menu
+            if (!APourAppel(etape.aLaFin, lumiere, nameof(LumiereInterrupteur.SuivreInterrupteur)))
             {
-                UnityEventTools.AddPersistentListener(etape.etatFinal, lumiere.ToutAllumer);
+                UnityEventTools.AddPersistentListener(etape.aLaFin, lumiere.SuivreInterrupteur);
             }
             lumieres++;
         }
@@ -646,7 +688,19 @@ public static class JournauxLaPorte
             }
         }
         EditorUtility.SetDirty(etape);
-        rapport.Add($"✔ « {etape.Nom} » rallume la pièce ({lumieres} lumière(s) de l'interrupteur) et le corridor : on voit les deux chutes en même temps");
+        rapport.Add($"✔ « {etape.Nom} » rallume la pièce ({lumieres} lumière(s) de l'interrupteur) et le corridor pendant les chutes; " +
+                    "ensuite l'interrupteur commande de nouveau la pièce (levé = noir = chiffres phosphorescents)");
+    }
+
+    static void RetirerAppel(UnityEventBase evenement, Object cible, string methode)
+    {
+        for (int i = evenement.GetPersistentEventCount() - 1; i >= 0; i--)
+        {
+            if (evenement.GetPersistentTarget(i) == cible && evenement.GetPersistentMethodName(i) == methode)
+            {
+                UnityEventTools.RemovePersistentListener(evenement, i);
+            }
+        }
     }
 
     static bool APourAppel(UnityEventBase evenement, Object cible, string methode)

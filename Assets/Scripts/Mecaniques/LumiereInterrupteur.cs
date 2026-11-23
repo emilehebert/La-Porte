@@ -8,9 +8,10 @@ using UnityEngine;
 ///
 /// L'ampoule (le matériau émissif) s'allume et s'éteint avec la lumière, en fondu (pas d'un coup).
 ///
-/// À partir de l'étape des têtes (ToutAllumer) : l'énigme des couleurs est finie, la lumière se rallume et
-/// reste allumée peu importe l'interrupteur (il faut voir les journaux tomber dans la pièce).
-/// Branché sur « 2 - Indices » : Au Debut et Etat Final → ToutAllumer.
+/// PENDANT l'étape des têtes seulement (ToutAllumer) : la lumière se rallume et reste allumée peu importe
+/// l'interrupteur, pour qu'on voie les journaux tomber dans la pièce. En quittant l'étape (SuivreInterrupteur),
+/// elle suit de nouveau l'interrupteur : levé = éteinte, et les chiffres phosphorescents des journaux brillent.
+/// Branché sur « 2 - Indices » : Au Debut → ToutAllumer, A La Fin → SuivreInterrupteur.
 ///
 /// Fonctionne tout le temps, peu importe l'étape.
 /// À mettre directement sur l'objet de la lumière.
@@ -32,16 +33,25 @@ public class LumiereInterrupteur : MonoBehaviour
     PartieEmissive partieEmissive;
     float intensiteNormale;
     float niveau;   // 0 = éteinte, 1 = allumée; glisse vers ce que l'interrupteur demande
-    bool toutAllume;   // vrai à partir de l'étape des têtes
+    bool toutAllume;   // vrai pendant l'étape des têtes
+
+    /// <summary>0 = éteinte, 1 = allumée (avec le fondu). Ex. : les chiffres phosphorescents brillent quand elle est éteinte.</summary>
+    public float Niveau => Mathf.SmoothStep(0f, 1f, niveau);
 
 
     /// <summary>
-    /// L'énigme des couleurs est finie : la lumière se rallume (en fondu) et reste allumée, peu importe
-    /// l'interrupteur (jusqu'au rechargement de la scène). Appelé par l'étape des têtes (Au Debut et Etat Final).
+    /// Étape des têtes : la lumière se rallume (en fondu) et reste allumée, peu importe l'interrupteur,
+    /// jusqu'à SuivreInterrupteur. Appelé par l'étape des têtes (Au Debut).
     /// </summary>
     public void ToutAllumer()
     {
         toutAllume = true;
+    }
+
+    /// <summary>La lumière suit de nouveau l'interrupteur (en fondu). Appelé à la fin de l'étape des têtes (A La Fin).</summary>
+    public void SuivreInterrupteur()
+    {
+        toutAllume = false;
     }
 
     void Awake()

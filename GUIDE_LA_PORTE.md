@@ -241,14 +241,14 @@ File → Export → FBX, dans `Assets/Model/Couloir.fbx` (toujours le même nom)
 | Réglage | Valeur |
 |---|---|
 | Limit to | rien de coché |
-| Object Types | **Empty** et **Mesh** seulement (pas Camera, Lamp, Armature, Other : la caméra et les lumières sont faites dans Unity) |
+| Object Types | **Empty**, **Camera** et **Mesh** (Camera obligatoire, car `Camera Room` du FBX est la caméra de la pièce) |
 | Scale | 1.00 |
 | Apply Scalings | All Local |
 | Forward / Up | -Z Forward / Y Up |
 | Apply Unit | coché |
 | Use Space Transform | coché |
 
-**Ne jamais changer les réglages Transform** : tout ce qui est placé dans Unity (têtes, journaux, arrivées sur la table, vent) suppose ces réglages. Un plafonnier du corridor = **un matériau à lui** (ex. « Light 1 »).
+**Ne jamais changer les réglages Transform ni les noms des matériaux** (le `.meta` du FBX remappe les matériaux par leur nom) : tout ce qui est placé dans Unity (têtes, journaux, arrivées sur la table, vent) suppose ces réglages. Un plafonnier du corridor = **un matériau à lui** (ex. « Light 1 »).
 
 La vent animée (`Vent_corridor.fbx`) : mêmes réglages Transform, plus **Bake Animation** coché, **NLA Strips** et **All Actions** décochés, **Apply Modifiers** décoché (sinon les shape keys ne passent pas). Ensuite : menu **La Porte → Brancher la vent animée**.
 

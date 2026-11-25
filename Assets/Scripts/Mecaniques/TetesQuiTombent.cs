@@ -65,8 +65,14 @@ public class TetesQuiTombent : MonoBehaviour
     public float rotationHeurtoir = 0.4f;
 
     [Header("Son")]
-    [Tooltip("Joué à la chute de CHAQUE tête (ex. : vent-tete-tombe), dans le corridor. Vide = aucun son.")]
+    [Tooltip("La séquence complète de Gabriel (vent-tete-tombe) : coups dans la vent, charnière, corde qui se tend.\n" +
+             "Jouée UNE seule fois, au début de l'étape, en même temps que l'animation de la vent (début de la Timeline).\n" +
+             "Vide = aucun son.")]
     public AudioSource sonChute;
+
+    [Tooltip("Décale le son par rapport à l'animation de la vent (secondes).\n" +
+             "Positif = le son part plus tard. Négatif = le son commence plus loin dans le fichier (il « rattrape » l'image).")]
+    public float decalageSon = 0f;
 
     const float TailleTete = 0.45f;   // seulement pour le dessin dans l'éditeur
 
@@ -113,6 +119,7 @@ public class TetesQuiTombent : MonoBehaviour
         Creer();
         StopAllCoroutines();
         StartCoroutine(LacherUneAUne());
+        StartCoroutine(JouerSonDeLaVent());
     }
 
     /// <summary>
@@ -163,10 +170,24 @@ public class TetesQuiTombent : MonoBehaviour
 
             Apparaitre(tete, tete.emplacement.position);
             if (tete.corps != null) tete.corps.angularVelocity = Random.insideUnitSphere * rotationAuHasard;
-            SortieSon.Superposer(sonChute);
 
             yield return new WaitForSeconds(delaiEntreLesTetes);
         }
+    }
+
+    /// <summary>
+    /// Le son de la vent part avec l'animation de la vent : Lacher est appelé au début de l'étape,
+    /// à la même image que la Timeline démarre (EtapeTimeline : Au Debut, puis Play).
+    /// </summary>
+    IEnumerator JouerSonDeLaVent()
+    {
+        if (sonChute == null || sonChute.clip == null) yield break;
+
+        if (decalageSon > 0f) yield return new WaitForSeconds(decalageSon);
+
+        sonChute.Stop();
+        sonChute.time = Mathf.Clamp(-decalageSon, 0f, sonChute.clip.length - 0.01f);   // négatif : on saute le début
+        sonChute.Play();
     }
 
     /// <summary>Montre la tête, centrée sur ce point, et l'attache à sa corde. La physique fait le reste.</summary>

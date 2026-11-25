@@ -223,7 +223,7 @@ Le volume d'**un** son : `Volume` sur son `SortieSon`.
 | `lamp-moving` | Chaque coup de heurtoir (la lampe tremble) | Chambre |
 | `lamp-on` / `lamp-off` | Interrupteur levé / baissé (la lampe s'allume / s'éteint) | Chambre |
 | `lum-corridor-eteint` / `lum-corridor-allume` | Interrupteur levé (le corridor s'assombrit) / baissé (tout se rallume). Plus joués à partir de l'étape 2 : le corridor reste tout allumé | Corridor |
-| `vent-tete-tombe` | Chaque tête qui tombe | Corridor |
+| `vent-tete-tombe` | Étape 2 : **une seule fois**, en même temps que l'animation de la vent (coups, charnière, corde). Pour le décaler : *Decalage Son* sur `Têtes qui tombent` | Corridor |
 | `journal-tombe` | Chaque journal qui glisse de l'étagère | Chambre |
 | `ambiance-appart` / `ambiance-corridor` | En boucle, du lancement à la fin. Ne se coupe pas quand la scène se recharge (`AmbianceContinue`) | Chambre / Corridor |
 | `bon-code` / `porte-ouverte` | Étape 3 : bon code / étape 4 : la porte s'ouvre | Les deux |

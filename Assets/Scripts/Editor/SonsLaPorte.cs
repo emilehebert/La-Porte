@@ -12,7 +12,7 @@ using UnityEngine.SceneManagement;
 /// (ses sous-dossiers peuvent rester comme ils sont), et les branche :
 ///
 ///   CHAMBRE (gauche)                              CORRIDOR (droite)
-///   bonne-couleur, mauvaise-couleur,              vent-tete-tombe
+///   bonne-couleur, mauvaise-couleur,              vent-tete-tombe (avec l'animation de la vent)
 ///   bonne-combinaison, mauvaise-combinaison       lum-corridor-eteint, lum-corridor-allume
 ///   spark, lamp-moving, lamp-on, lamp-off         ambiance-corridor (en boucle)
 ///   journal-tombe, mauvais-code

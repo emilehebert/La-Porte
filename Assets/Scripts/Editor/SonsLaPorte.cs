@@ -136,10 +136,23 @@ public static class SonsLaPorte
         EditorSceneManager.MarkSceneDirty(racine.gameObject.scene);
         Selection.activeGameObject = racine.gameObject;
 
+        // Le rapport complet va dans la Console (la fenêtre de Unity coupe les longs textes).
+        Debug.Log("[Sons] Rapport de « Brancher les sons » :\n" + string.Join("\n", rapport));
+
+        // La fenêtre : seulement le résumé et ce qui demande de l'attention.
+        int branches = 0;
+        List<string> attention = new List<string>();
+        foreach (string ligne in rapport)
+        {
+            if (ligne.StartsWith("✔ ") && ligne.Contains(" ← ")) branches++;
+            else if (ligne.StartsWith("⚠") || ligne.StartsWith("—")) attention.Add(ligne);
+        }
+
         EditorUtility.DisplayDialog("La Porte — sons",
-            string.Join("\n", rapport) +
-            "\n\nChambre = sortie GAUCHE, corridor = sortie DROITE (inversable sur « Sons → ReglagesSons »)." +
-            "\nSauvegardez la scène (Ctrl+S).", "OK");
+            $"✔ {branches} sons branchés.\n\n" +
+            (attention.Count > 0 ? string.Join("\n", attention) + "\n\n" : "") +
+            "Rapport complet : dans la Console.\n" +
+            "Chambre = sortie GAUCHE, corridor = sortie DROITE.\nSauvegardez la scène (Ctrl+S).", "OK");
     }
 
 

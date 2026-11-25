@@ -234,6 +234,26 @@ Un son sans fichier garde son **bip** placeholder. Pour ajouter ou changer un so
 
 ---
 
+### Exporter le décor de Blender (Couloir.fbx)
+
+File → Export → FBX, dans `Assets/Model/Couloir.fbx` (toujours le même nom).
+
+| Réglage | Valeur |
+|---|---|
+| Limit to | rien de coché |
+| Object Types | **Empty** et **Mesh** seulement (pas Camera, Lamp, Armature, Other : la caméra et les lumières sont faites dans Unity) |
+| Scale | 1.00 |
+| Apply Scalings | All Local |
+| Forward / Up | -Z Forward / Y Up |
+| Apply Unit | coché |
+| Use Space Transform | coché |
+
+**Ne jamais changer les réglages Transform** : tout ce qui est placé dans Unity (têtes, journaux, arrivées sur la table, vent) suppose ces réglages. Un plafonnier du corridor = **un matériau à lui** (ex. « Light 1 »).
+
+La vent animée (`Vent_corridor.fbx`) : mêmes réglages Transform, plus **Bake Animation** coché, **NLA Strips** et **All Actions** décochés, **Apply Modifiers** décoché (sinon les shape keys ne passent pas). Ensuite : menu **La Porte → Brancher la vent animée**.
+
+---
+
 ## 8. Placeholders de test (à remplacer)
 
 Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste du début à la fin. **Il n'y a plus aucun texte placeholder à l'écran** : le menu **La Porte → Retirer les textes placeholder** supprime « PORTE OUVERTE », l'afficheur du numpad (« CODE FAUX ») et l'ancien journal placeholder (cube + pages), et les retire de l'étape « 4 - Porte ouverte » (annulable avec Ctrl+Z, puis Ctrl+S).

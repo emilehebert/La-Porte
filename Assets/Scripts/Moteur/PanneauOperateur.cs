@@ -52,7 +52,7 @@ public class PanneauOperateur : MonoBehaviour
     {
         if (clavier.sKey.wasPressedThisFrame) Capteurs.DeclencherSonnette();
         if (clavier.hKey.wasPressedThisFrame) Capteurs.DeclencherHeurtoir();
-        if (clavier.lKey.wasPressedThisFrame) Capteurs.ChangerInterrupteur(!Capteurs.InterrupteurAllume);
+        if (clavier.lKey.wasPressedThisFrame) Capteurs.BasculerInterrupteur();
 
         float direction = 0f;
         if (clavier.leftArrowKey.isPressed) direction -= 1f;
@@ -155,10 +155,10 @@ public class PanneauOperateur : MonoBehaviour
         if (GUILayout.Button("Sonnette (S)", GUILayout.Height(30))) Capteurs.DeclencherSonnette();
         if (GUILayout.Button("Heurtoir (H)", GUILayout.Height(30))) Capteurs.DeclencherHeurtoir();
 
-        string etatInterrupteur = Capteurs.InterrupteurAllume ? "ALLUMÉ" : "fermé";
+        string etatInterrupteur = Capteurs.InterrupteurAllume ? "mode COULEURS" : "mode lumières";
         if (GUILayout.Button($"Interrupteur (L) : {etatInterrupteur}", GUILayout.Height(30)))
         {
-            Capteurs.ChangerInterrupteur(!Capteurs.InterrupteurAllume);
+            Capteurs.BasculerInterrupteur();
         }
         GUILayout.EndHorizontal();
 

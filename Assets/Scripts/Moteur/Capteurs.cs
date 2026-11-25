@@ -65,7 +65,17 @@ public class Capteurs : MonoBehaviour
     // ou qu'on rejoue une étape. Quand l'expérience RECOMMENCE AU DÉBUT, RemettreAZero() les remet au repos.
 
     public static float AnglePoignee { get; private set; }        // de -1 à 1
+    /// <summary>
+    /// Le MODE que le jeu utilise (pas forcément la position physique, voir ForcerModeLumieres) :
+    ///   false = mode lumières : plafond de la pièce allumé, lampe éteinte, corridor tout allumé en blanc;
+    ///   true  = mode couleurs : lampe allumée, plafond éteint, corridor sombre avec les couleurs du code.
+    /// </summary>
     public static bool InterrupteurAllume { get; private set; }
+
+    // La dernière position physique reçue (null = rien reçu encore), et si le mode est inversé par rapport à elle.
+    // Après un forçage, l'interrupteur physique n'est plus dans la « bonne » position : chaque bascule change quand même le mode.
+    static bool? positionPhysique;
+    static bool modeInverse;
     public static float HeureDernierContact { get; private set; } // Time.time de la dernière interaction
 
 
@@ -140,12 +150,41 @@ public class Capteurs : MonoBehaviour
         Heurtoir?.Invoke();
     }
 
-    public static void ChangerInterrupteur(bool allume)
+    /// <summary>
+    /// La POSITION de l'interrupteur physique (OSC). Seul un changement de position compte
+    /// (TouchDesigner peut envoyer la même valeur en continu) : chaque bascule change le mode.
+    /// </summary>
+    public static void ChangerInterrupteur(bool positionLevee)
     {
-        if (allume == InterrupteurAllume) return;   // rien n'a changé
-        InterrupteurAllume = allume;
+        if (positionPhysique == positionLevee) return;   // l'interrupteur n'a pas bougé
+        positionPhysique = positionLevee;
+
+        bool mode = positionLevee != modeInverse;
+        if (mode == InterrupteurAllume) return;   // déjà dans ce mode
+        InterrupteurAllume = mode;
         NoterContact();
-        Interrupteur?.Invoke(allume);
+        Interrupteur?.Invoke(mode);
+    }
+
+    /// <summary>Simule une bascule de l'interrupteur physique (touche L, panneau F1) : le mode change.</summary>
+    public static void BasculerInterrupteur()
+    {
+        bool position = positionPhysique ?? (InterrupteurAllume != modeInverse);
+        ChangerInterrupteur(!position);
+    }
+
+    /// <summary>
+    /// Passe en MODE LUMIÈRES (plafond allumé, lampe éteinte, corridor en blanc) sans toucher à l'interrupteur,
+    /// et y reste jusqu'à la prochaine bascule de l'interrupteur (dans un sens ou dans l'autre).
+    /// Ex. : au début de l'étape des têtes. Ne compte pas comme un contact des joueurs.
+    /// </summary>
+    public static void ForcerModeLumieres()
+    {
+        if (!InterrupteurAllume) return;   // déjà en mode lumières
+
+        modeInverse = positionPhysique ?? true;   // la position actuelle donne maintenant le mode lumières
+        InterrupteurAllume = false;
+        Interrupteur?.Invoke(false);
     }
 
     /// <summary>Un code a été entré sur le numpad. TouchDesigner a déjà vérifié s'il est bon.</summary>
@@ -172,6 +211,9 @@ public class Capteurs : MonoBehaviour
     /// </summary>
     public static void RemettreAZero()
     {
+        // Le jeu repart en mode lumières, même si l'interrupteur physique est resté levé :
+        // la prochaine bascule (dans un sens ou dans l'autre) passera en mode couleurs.
+        modeInverse = positionPhysique ?? false;
         InterrupteurAllume = false;
         AnglePoignee = 0f;
     }

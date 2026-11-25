@@ -26,6 +26,10 @@ public class EtapeTimeline : Etape
     [Tooltip("Temps d'attente supplémentaire après la fin de la Timeline.")]
     public float attenteApres = 0f;
 
+    [Tooltip("Au début de l'étape (et si on la saute), passe en MODE LUMIÈRES : plafond de la pièce allumé,\n" +
+             "lampe éteinte, corridor en blanc. Ça reste comme ça jusqu'à la prochaine bascule de l'interrupteur.")]
+    public bool passerEnModeLumieres = true;
+
     [Header("En plus de la Timeline (optionnel)")]
     [Tooltip("Appelé au début de l'étape, en même temps que la Timeline.\nEx. : Têtes qui tombent → TetesQuiTombent.Lacher.")]
     public UnityEvent auDebut = new UnityEvent();
@@ -49,6 +53,7 @@ public class EtapeTimeline : Etape
 
     protected override void Entrer()
     {
+        if (passerEnModeLumieres) Capteurs.ForcerModeLumieres();
         auDebut.Invoke();
         StartCoroutine(Deroulement());
     }
@@ -77,6 +82,7 @@ public class EtapeTimeline : Etape
     /// <summary>Saute directement à la fin (les têtes et le journal déjà tombés).</summary>
     public override void AppliquerEtatFinal()
     {
+        if (passerEnModeLumieres) Capteurs.ForcerModeLumieres();
         etatFinal.Invoke();
         if (timeline == null) return;
 

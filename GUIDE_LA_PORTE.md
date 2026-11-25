@@ -23,7 +23,8 @@ Dans l'éditeur, choisir *Display 1* (la pièce) ou *Display 2* (le corridor) en
 4. Menu **La Porte → Brancher les têtes (Head_01 à Head_05)** (voir section 8).
 5. Menu **La Porte → Brancher les journaux** (voir section 8, « Les journaux »).
 6. Menu **La Porte → Ajouter les étincelles à la prise** (voir section 3).
-7. Ctrl+S.
+7. Menu **La Porte → Brancher les sons** (voir section 7, « Le son »).
+8. Ctrl+S.
 
 Ces menus ne font rien si la scène contient déjà ce qu'ils ajoutent (`Jeu`, `Placeholders (à remplacer)`, `EtincellesPrise`).
 
@@ -52,6 +53,7 @@ Corridor Camera          Display 2 : le corridor (LOCATAIRE)
 Placeholders (à remplacer)          bips seulement (plus de texte : menu « Retirer les textes placeholder »)
 Head_01 à Head_05        les 5 têtes : 2 tombent au hasard à chaque partie (TetesQuiTombent)
 Journaux qui tombent     les 5 journaux de la bibliothèque (une affiche par tête) + 2 arrivées sur la table (JournauxQuiTombent)
+Sons                     ReglagesSons · SonsInteractions, avec un enfant par pièce : Chambre (gauche), Corridor (droite), Les deux
 ```
 
 **L'ordre des enfants de `Jeu` = l'ordre de l'expérience.** Glisser pour réordonner, décocher une étape pour la retirer.
@@ -62,7 +64,7 @@ Journaux qui tombent     les 5 journaux de la bibliothèque (une affiche par tê
 
 | | Rôle | Scripts |
 |---|---|---|
-| **Mécaniques** | Réagissent **toujours** aux objets, peu importe l'étape. | `LumieresCorridor`, `LampeSurPied`, `LumiereInterrupteur`, `JournalPersonnages`, `CopyLightIntensity`, `EtincellesPrise` |
+| **Mécaniques** | Réagissent **toujours** aux objets, peu importe l'étape. | `LumieresCorridor`, `LampeSurPied`, `LumiereInterrupteur`, `JournalPersonnages`, `CopyLightIntensity`, `EtincellesPrise`, `SonsInteractions`, `AmbianceContinue` |
 | **Étapes** | Une seule active à la fois. Elles vérifient si l'énigme est réussie. | `EtapeAttente`, `EtapeEnigmeCouleurs`, `EtapeTimeline`, `EtapeCodeNumpad`, `EtapeFin` |
 
 Comme dans une escape room : les objets répondent tout le temps, et le « maître du jeu » (`GestionnaireEtapes`) surveille la progression.
@@ -171,11 +173,12 @@ Dans le panneau F1 :
 - la liste des étapes : un clic pour y aller directement;
 - l'étape en cours : depuis combien de temps, sa note, et sa progression (solution des couleurs, état de la lampe, code attendu, mauvais essais, temps de la Timeline, compte à rebours de la fin);
 - des boutons pour simuler les capteurs, et un curseur pour la poignée;
+- **Test des enceintes** : « Bip CHAMBRE » / « Bip CORRIDOR » joue 3 bips dans une seule pièce (pour vérifier le câblage);
 - le **moniteur OSC** : chaque adresse reçue, sa valeur et il y a combien de temps. Vert = reçu il y a moins de 2 s. Si rien n'arrive, le problème est côté TouchDesigner, Arduino ou réseau, pas dans Unity.
 
 ---
 
-## 7. Les écrans
+## 7. Les écrans et le son
 
 | Écran | Caméra | Qui le voit |
 |---|---|---|
@@ -186,6 +189,48 @@ Dans le build, `ActiverEcrans` allume le 2e écran au démarrage. Le build s'ouv
 
 > **À savoir :** le modèle `Couloir.fbx` importe aussi sa propre caméra, `Camera Room`. Il y a donc deux caméras pour la pièce : à décider laquelle garder (voir section 10).
 
+### Le son : chambre à gauche, corridor à droite
+
+Unity n'accepte qu'**un seul AudioListener** (avec deux, un seul entend). Les deux pièces sont donc séparées par la stéréo :
+
+| Pièce | Sortie de l'ordi | Enceinte |
+|---|---|---|
+| **Chambre** (visiteur) | **Gauche** | celle de la chambre |
+| **Corridor** (locataire) | **Droite** | celle du corridor |
+| Les deux (bon code, porte ouverte) | gauche + droite | les deux |
+
+Chaque son a un `SortieSon` qui dit dans quelle pièce on l'entend. Les sons sont en **2D** : la position des objets et des caméras ne change rien. Les fichiers sont importés en **mono** (une seule enceinte par pièce).
+
+Réglages sur `Sons → ReglagesSons` (aussi pendant que le jeu roule) :
+
+| Réglage | Effet |
+|---|---|
+| Inverser Gauche Droite | On entend la chambre dans le corridor? Cocher (ou inverser les câbles) |
+| Volume Chambre / Volume Corridor | Le volume de chaque pièce |
+| Muet Chambre / Muet Corridor | Pour les tests : écouter une seule pièce |
+
+Le volume d'**un** son : `Volume` sur son `SortieSon`.
+
+**Les fichiers de Gabriel** vont dans `Assets/Audio` (ses sous-dossiers peuvent rester comme ils sont). Le menu **La Porte → Brancher les sons** les trouve **par leur nom de fichier** :
+
+| Fichier | Quand | Pièce |
+|---|---|---|
+| `bonne-couleur` | Étape 1 : bonne couleur | Chambre |
+| `mauvaise-couleur` | Étape 1 : erreur au 1er choix | Chambre |
+| `mauvaise-combinaison` | Étape 1 : erreur après au moins une bonne couleur (on perd sa progression) | Chambre |
+| `bonne-combinaison` | Étape 1 : combinaison réussie | Chambre |
+| `spark` | Les étincelles de la prise (sonnette, lampe éteinte) | Chambre |
+| `lamp-moving` | Chaque coup de heurtoir (la lampe tremble) | Chambre |
+| `lamp-on` / `lamp-off` | Interrupteur levé / baissé (la lampe s'allume / s'éteint) | Chambre |
+| `lum-corridor-eteint` / `lum-corridor-allume` | Interrupteur levé (le corridor s'assombrit) / baissé (tout se rallume). Plus joués à partir de l'étape 2 : le corridor reste tout allumé | Corridor |
+| `vent-tete-tombe` | Chaque tête qui tombe | Corridor |
+| `journal-tombe` | Chaque journal qui glisse de l'étagère | Chambre |
+| `ambiance-appart` / `ambiance-corridor` | En boucle, du lancement à la fin. Ne se coupe pas quand la scène se recharge (`AmbianceContinue`) | Chambre / Corridor |
+| `bon-code` / `porte-ouverte` | Étape 3 : bon code / étape 4 : la porte s'ouvre | Les deux |
+| `mauvais-code` | Étape 3 : mauvais code | Chambre |
+
+Un son sans fichier garde son **bip** placeholder. Pour ajouter ou changer un son : mettre le fichier dans `Assets/Audio` **avec ce nom exact**, puis refaire le menu (on peut le refaire sans danger). Le rapport du menu liste aussi les fichiers qu'il ne connaît pas. Deux sons se superposent (deux coups de heurtoir rapides = on entend les deux).
+
 ---
 
 ## 8. Placeholders de test (à remplacer)
@@ -194,7 +239,7 @@ Tout est rangé sous **`Placeholders (à remplacer)`**, pour que le jeu se teste
 
 | Ce qui manque | Placeholder | Comment tester |
 |---|---|---|
-| Sons | Bips générés par le code (sous `Sons (bips)`) : bon / mauvais code, porte ouverte... | Toutes les étapes (**B** / **M** au numpad) |
+| Sons | Bips générés par le code, seulement pour les sons qui n'ont pas encore de fichier (pour l'instant : bon / mauvais code, porte ouverte). Rangés sous `Sons` par le menu « Brancher les sons » | **B** / **M** au numpad, étape 4 |
 
 ### Les têtes
 
@@ -250,7 +295,7 @@ Réglages sur `Journaux qui tombent → JournauxQuiTombent` :
 ### Remplacer un placeholder
 
 - **Têtes et journal** : refaire l'animation dans la Timeline `Assets/Placeholders/Indices.playable` (ou en créer une nouvelle) et l'assigner à l'étape « 2 - Indices ». Comme les têtes changent à chaque partie, **animer 3 emplacements (des objets vides), jamais les têtes elles-mêmes**, puis les mettre dans `TetesQuiTombent → Emplacements`, dans l'ordre de chute. Supprimer les cubes ensuite. Sur le PlayableDirector, décocher *Play On Awake*.
-- **Sons** : glisser le vrai son dans l'*AudioClip* de l'AudioSource. Le bip ne joue plus dès qu'un vrai son est là.
+- **Sons** : mettre le fichier dans `Assets/Audio` avec le bon nom (section 7, « Le son ») et refaire **La Porte → Brancher les sons**. Le bip est retiré tout seul.
 - **Porte ouverte** : remplacer les objets dans `4 - Porte ouverte → Objets A Afficher` (ou mettre une Timeline de fin dans *Timeline Fin*).
 
 Quand tout est remplacé, supprimer `Placeholders (à remplacer)`, `Assets/Placeholders` et `Assets/Scripts/Placeholders`.
@@ -295,6 +340,8 @@ Aussi disponibles : `Sortir()`, `QuandHeurtoir()`, `QuandInterrupteur(bool allum
 - [x] Modéliser les **têtes** (3 tombent au hasard à la place des cubes).
 - [x] Le **journal** : une affiche par tête, les journaux des têtes tombées tombent sur la table (menu **La Porte → Brancher les journaux**, section 8).
 - [x] L'interrupteur et les journaux : remplace l'idée « page floue A / B » (`JournalPersonnages`, plus utilisé) par les chiffres phosphorescents (lumière = visages, noir = numéros).
-- [ ] La **porte qui s'ouvre** et les **sons**.
+- [ ] La **porte qui s'ouvre**.
+- [x] Les **sons** de Gabriel : branchés (menu **La Porte → Brancher les sons**, section 7).
+- [ ] **Gabriel** : les sons qui manquent, `bon-code`, `mauvais-code`, `porte-ouverte` (et, si on veut, la poignée et la corde des têtes).
 - [ ] Choisir la caméra de la pièce : `Camera Room` (du modèle Blender) ou `Room Camera`.
 - [ ] Une **serrure électrique**? Si oui, donner l'adresse OSC.

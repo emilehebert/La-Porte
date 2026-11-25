@@ -173,6 +173,12 @@ public class PanneauOperateur : MonoBehaviour
         if (GUILayout.Button("Bon code (B)", GUILayout.Height(28))) Capteurs.EntrerCodeNumpad(true);
         if (GUILayout.Button("Mauvais code (M)", GUILayout.Height(28))) Capteurs.EntrerCodeNumpad(false);
         GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Test des enceintes :", GUILayout.Width(130));
+        if (GUILayout.Button("Bip CHAMBRE", GUILayout.Height(28))) ReglagesSons.Tester(Espace.Chambre);
+        if (GUILayout.Button("Bip CORRIDOR", GUILayout.Height(28))) ReglagesSons.Tester(Espace.Corridor);
+        GUILayout.EndHorizontal();
     }
 
     void DessinerMoniteurOSC()

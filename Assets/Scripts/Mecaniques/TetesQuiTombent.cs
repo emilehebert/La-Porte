@@ -64,6 +64,10 @@ public class TetesQuiTombent : MonoBehaviour
     [Tooltip("Vitesse de rotation (tours/s) donnée autour de la corde par un coup de heurtoir, pour voir les côtés.")]
     public float rotationHeurtoir = 0.4f;
 
+    [Header("Son")]
+    [Tooltip("Joué à la chute de CHAQUE tête (ex. : vent-tete-tombe), dans le corridor. Vide = aucun son.")]
+    public AudioSource sonChute;
+
     const float TailleTete = 0.45f;   // seulement pour le dessin dans l'éditeur
 
 
@@ -159,6 +163,7 @@ public class TetesQuiTombent : MonoBehaviour
 
             Apparaitre(tete, tete.emplacement.position);
             if (tete.corps != null) tete.corps.angularVelocity = Random.insideUnitSphere * rotationAuHasard;
+            SortieSon.Superposer(sonChute);
 
             yield return new WaitForSeconds(delaiEntreLesTetes);
         }

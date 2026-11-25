@@ -45,6 +45,10 @@ public class JournauxQuiTombent : MonoBehaviour
     [Tooltip("Temps (secondes) entre la chute de deux journaux.")]
     public float delaiEntreLesJournaux = 0.7f;
 
+    [Header("Son")]
+    [Tooltip("Joué quand CHAQUE journal commence à glisser hors de l'étagère (ex. : journal-tombe), dans la chambre. Vide = aucun son.")]
+    public AudioSource sonChute;
+
     [Header("Chute")]
     [Tooltip("Temps (secondes) pendant lequel le journal glisse hors de l'étagère avant de tomber.")]
     public float dureeSortie = 0.25f;
@@ -213,6 +217,7 @@ public class JournauxQuiTombent : MonoBehaviour
         Vector3 depart = journal.position;
         Quaternion rotationDepart = journal.rotation;
         PoseFinale(index, arrivee, out Vector3 positionFinale, out Quaternion rotationFinale);
+        SortieSon.Superposer(sonChute);
 
         Vector3 versLaPiece = positionFinale - depart;
         versLaPiece.y = 0f;

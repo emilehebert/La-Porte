@@ -27,7 +27,10 @@ public class EtapeEnigmeCouleurs : Etape
 
     [Header("Sons (optionnels)")]
     public AudioSource sonBonneCouleur;
+    [Tooltip("Erreur au 1er choix de la combinaison.")]
     public AudioSource sonMauvaiseCouleur;
+    [Tooltip("Erreur APRÈS au moins une bonne couleur : le visiteur perd sa progression. Vide = « Son Mauvaise Couleur ».")]
+    public AudioSource sonMauvaiseCombinaison;
     public AudioSource sonReussite;
 
     int progression;             // combien de bonnes couleurs ont été sélectionnées de suite
@@ -105,8 +108,9 @@ public class EtapeEnigmeCouleurs : Etape
         }
         else
         {
+            bool perdSaProgression = progression > 0;
             progression = 0;
-            JouerSon(sonMauvaiseCouleur);
+            JouerSon(perdSaProgression && sonMauvaiseCombinaison != null ? sonMauvaiseCombinaison : sonMauvaiseCouleur);
             lampe.Clignoter(3, 0.1f);
         }
     }

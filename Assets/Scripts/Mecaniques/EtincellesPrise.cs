@@ -36,6 +36,6 @@ public class EtincellesPrise : MonoBehaviour
         etincelles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         etincelles.Play(true);
 
-        if (son != null) son.Play();
+        SortieSon.Superposer(son);   // par-dessus : deux coups rapides = deux grésillements
     }
 }

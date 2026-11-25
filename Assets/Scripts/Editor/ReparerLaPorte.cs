@@ -18,7 +18,9 @@ using UnityEngine.SceneManagement;
 ///   2. empêche Couloir.fbx d'importer les lumières et les caméras de Blender
 ///      (les lumières de Blender arrivent beaucoup trop fortes dans Unity : tout devient blanc);
 ///   3. rouvre Couloir.unity telle qu'elle est enregistrée sur le disque;
-///   4. remet ce qui manque : maillage des journaux, colliders, vieille vent cachée,
+///   4. détache de Couloir.fbx les maillages que la scène lui emprunte (les journaux → Assets/Model/Detaches),
+///      pour qu'un export de Blender ne puisse plus les changer;
+///      remet ce qui manque : colliders, vieille vent cachée,
 ///      caméra de la chambre (Display 1), et relance les menus « Brancher … » seulement pour ce qui a disparu;
 ///   5. vérifie les lumières, les plafonniers, la vent, les étapes et les références cassées,
 ///      et écrit le rapport complet dans la Console.
@@ -31,7 +33,8 @@ public static class ReparerLaPorte
     const string CheminFbx = "Assets/Model/Couloir.fbx";
     const string DossierSauvegardes = "Assets/Scenes/Sauvegardes";
 
-    const string NomJournalDuDecor = "Journal";
+    const string DossierDetaches = "Assets/Model/Detaches";
+    const string CheminJournalDetache = DossierDetaches + "/Journal.asset";
     const string NomVentAnimee = "Vent_corridor (animée)";
     const string NomAncienneVent = "Vent_corridor";
     const string NomEtincelles = "Étincelles de la prise";
@@ -88,13 +91,15 @@ public static class ReparerLaPorte
         Scene scene = EditorSceneManager.OpenScene(CheminScene, OpenSceneMode.Single);
         rapport.Add($"✔ Scène rouverte telle qu'enregistrée : {CheminScene}");
 
-        RemettreLesMaillages();
         VerifierLaVent();
         RelancerCeQuiManque();
+        DetacherLesMaillages();   // après les menus relancés : « Brancher les journaux » reprend le maillage du FBX
+        RemesurerLesJournaux();   // après le détachement : les mesures doivent venir du bon maillage
         VerifierLesLumieres();
         RemettreLaCameraDeLaChambre();
         VerifierLesCameras();
         VerifierLesReferences();
+        ListerCeQuiTientAuxNomsDeBlender();
 
         if (reparations > 0)
         {
@@ -156,44 +161,92 @@ public static class ReparerLaPorte
             rapport.Add("✔ Couloir.fbx : import des lumières et caméras de Blender désactivé (c'est ce qui rendait tout blanc).");
         }
         else rapport.Add("✔ Couloir.fbx n'importe pas les lumières ni les caméras de Blender.");
+
+        // Chaque objet du modèle comparé à la référence (voir CouloirImport) : position, rotation, échelle, forme.
+        rapport.AddRange(CouloirImport.Verifier(out int _));
+    }
+
+    /// <summary>
+    /// « Journaux qui tombent » garde la taille et le sens de chaque journal (mesurés dans l'éditeur, OnValidate).
+    /// Si elles ont été prises pendant que les journaux avaient un mauvais maillage, ils tombent minuscules :
+    /// on les remesure avec le bon maillage.
+    /// </summary>
+    static void RemesurerLesJournaux()
+    {
+        foreach (JournauxQuiTombent groupe in DansLaScene<JournauxQuiTombent>())
+        {
+            Undo.RecordObject(groupe, "Tout rebrancher");
+            string avant = EditorJsonUtility.ToJson(groupe);
+            groupe.MesurerLesJournaux();
+            if (EditorJsonUtility.ToJson(groupe) != avant)
+            {
+                EditorUtility.SetDirty(groupe);
+                reparations++;
+                rapport.Add("✔ Mesures des journaux recalculées (taille, épaisseur, sens de l'affiche).");
+            }
+            else rapport.Add("✔ Mesures des journaux à jour.");
+
+            if (groupe.mesures != null)
+                for (int i = 0; i < groupe.mesures.Length; i++)
+                    if (groupe.mesures[i].hauteur < 0.05f || groupe.mesures[i].largeur < 0.05f)
+                        rapport.Add($"✘ Journal n° {i + 1} : {groupe.mesures[i].largeur:F3} × {groupe.mesures[i].hauteur:F3} m, beaucoup trop petit (maillage cassé ?).");
+        }
     }
 
 
     // ---------------------------------------------------------------- 4. Réparations
 
-    /// <summary>Le maillage d'un objet du modèle Couloir.fbx, par son nom (ex. « Journal »).</summary>
-    static Mesh MaillageDuFbx(string nom)
+    /// <summary>
+    /// Les objets de la scène qui ne font PAS partie du modèle Couloir mais qui lui empruntent un maillage
+    /// (les 5 journaux) reçoivent une copie à eux dans Assets/Model/Detaches :
+    /// un nouvel export de Blender ne peut plus les changer.
+    /// Les journaux reprennent le maillage d'origine (Detaches/Journal.asset, tiré du Couloir.fbx du commit da7a8d8),
+    /// même si le Journal de Blender est cassé.
+    /// Le décor lui-même (le modèle Couloir et ce qui est accroché à ses objets) continue de suivre le FBX : c'est voulu.
+    /// </summary>
+    static void DetacherLesMaillages()
     {
-        GameObject modele = AssetDatabase.LoadAssetAtPath<GameObject>(CheminFbx);
-        if (modele == null) return null;
-        foreach (MeshFilter filtre in modele.GetComponentsInChildren<MeshFilter>(true))
-            if (filtre.name == nom) return filtre.sharedMesh;
-        return null;
-    }
-
-    static void RemettreLesMaillages()
-    {
-        Mesh journal = MaillageDuFbx(NomJournalDuDecor);
+        Mesh journal = AssetDatabase.LoadAssetAtPath<Mesh>(CheminJournalDetache);
         if (journal == null)
-            rapport.Add($"✘ Couloir.fbx n'a pas d'objet « {NomJournalDuDecor} » : les journaux n'ont rien à afficher. " +
-                        "Le remettre dans Blender (Outils/Journal_recupere/Journal.blend, File → Append) et réexporter.");
+            rapport.Add($"✘ « {CheminJournalDetache} » introuvable : c'est le maillage d'origine des journaux.");
 
-        int journauxRepares = 0;
+        int journaux = 0;
         foreach (MeshFilter filtre in DansLaScene<MeshFilter>())
         {
-            if (filtre.sharedMesh != null) continue;
+            if (FaitPartieDuModeleCouloir(filtre)) continue;
+            Mesh actuel = filtre.sharedMesh;
+            bool vientDuFbx = actuel != null && AssetDatabase.GetAssetPath(actuel) == CheminFbx;
 
-            if (filtre.name.StartsWith("Journal") && journal != null)
+            if (filtre.name.StartsWith("Journal") && journal != null && (actuel == null || vientDuFbx))
             {
                 Undo.RecordObject(filtre, "Tout rebrancher");
                 filtre.sharedMesh = journal;
                 EditorUtility.SetDirty(filtre);
-                journauxRepares++;
+                journaux++;
                 reparations++;
+                continue;
             }
-            else rapport.Add($"✘ « {Chemin(filtre.transform)} » n'a plus de maillage (objet disparu de Couloir.fbx ?)");
+
+            if (actuel == null)
+            {
+                rapport.Add($"✘ « {Chemin(filtre.transform)} » n'a plus de maillage.");
+                continue;
+            }
+            if (!vientDuFbx) continue;
+
+            Mesh copie = CopieDetachee(actuel);
+            Undo.RecordObject(filtre, "Tout rebrancher");
+            filtre.sharedMesh = copie;
+            EditorUtility.SetDirty(filtre);
+            reparations++;
+            rapport.Add($"✔ « {Chemin(filtre.transform)} » : maillage « {actuel.name} » détaché de Couloir.fbx ({AssetDatabase.GetAssetPath(copie)}).");
         }
-        if (journauxRepares > 0) rapport.Add($"✔ Maillage « Journal » remis sur {journauxRepares} journal(aux).");
+
+        if (journaux > 0)
+            rapport.Add($"✔ {journaux} journal(aux) détaché(s) de Couloir.fbx : maillage d'origine ({CheminJournalDetache}). " +
+                        "Un export de Blender ne peut plus les changer.");
+        else if (journal != null)
+            rapport.Add("✔ Les journaux ont leur propre maillage (Couloir.fbx ne peut plus les changer).");
 
         foreach (MeshCollider collider in DansLaScene<MeshCollider>())
         {
@@ -401,6 +454,48 @@ public static class ReparerLaPorte
         reparations++;
         rapport.Add($"✔ Caméra de la chambre remise : « {NomCameraChambre} » activée sur le Display 1, à la place et avec les réglages " +
                     "de l'ancienne « Camera Room » de Blender.");
+    }
+
+    /// <summary>Une copie du maillage dans Assets/Model/Detaches (réutilisée si elle existe déjà).</summary>
+    static Mesh CopieDetachee(Mesh source)
+    {
+        string chemin = $"{DossierDetaches}/{source.name}.asset";
+        Mesh existante = AssetDatabase.LoadAssetAtPath<Mesh>(chemin);
+        if (existante != null) return existante;
+
+        Directory.CreateDirectory(DossierDetaches);
+        Mesh copie = Object.Instantiate(source);
+        copie.name = source.name;
+        AssetDatabase.CreateAsset(copie, chemin);
+        return copie;
+    }
+
+    /// <summary>Vrai si l'objet vient du modèle Couloir.fbx lui-même (le décor, qui doit suivre les exports).</summary>
+    static bool FaitPartieDuModeleCouloir(Component composant)
+    {
+        Object source = PrefabUtility.GetCorrespondingObjectFromSource(composant.gameObject);
+        return source != null && AssetDatabase.GetAssetPath(source) == CheminFbx;
+    }
+
+    /// <summary>
+    /// Ce qui est accroché aux objets du modèle (lumière de la lampe, étincelles de la prise, vent animée…)
+    /// tient par le NOM de l'objet dans Blender : renommer ou supprimer cet objet dans Blender le perd.
+    /// </summary>
+    static void ListerCeQuiTientAuxNomsDeBlender()
+    {
+        Transform couloir = RacineDuModeleCouloir();
+        if (couloir == null) return;
+
+        List<string> accroches = new List<string>();
+        foreach (AddedGameObject ajout in PrefabUtility.GetAddedGameObjects(couloir.gameObject))
+            if (ajout.instanceGameObject != null && ajout.instanceGameObject.transform.parent != null)
+                accroches.Add($"{ajout.instanceGameObject.transform.parent.name} → {ajout.instanceGameObject.name}");
+        foreach (AddedComponent ajout in PrefabUtility.GetAddedComponents(couloir.gameObject))
+            if (ajout.instanceComponent != null)
+                accroches.Add($"{ajout.instanceComponent.gameObject.name} → {ajout.instanceComponent.GetType().Name}");
+
+        if (accroches.Count > 0)
+            rapport.Add("ℹ Accroché aux objets de Couloir.fbx (ne pas renommer ces objets dans Blender) : " + string.Join(", ", accroches));
     }
 
     /// <summary>L'objet de la scène qui est le modèle Couloir.fbx (la racine de l'instance).</summary>

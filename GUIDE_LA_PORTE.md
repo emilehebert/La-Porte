@@ -188,7 +188,7 @@ Dans le panneau F1 :
 
 Dans le build, `ActiverEcrans` allume le 2e écran au démarrage. Le build s'ouvre en plein écran et continue de tourner même si la fenêtre n'a pas le focus.
 
-> **À savoir :** le modèle `Couloir.fbx` importe aussi sa propre caméra, `Camera Room`. Il y a donc deux caméras pour la pièce : à décider laquelle garder (voir section 10).
+> **À savoir :** la pièce est filmée par `Room Camera` (dans la scène). `Couloir.fbx` n'importe plus de caméra de Blender (voir section 10).
 
 ### Le son : chambre à gauche, corridor à droite
 
@@ -331,7 +331,87 @@ Aussi disponibles : `Sortir()`, `QuandHeurtoir()`, `QuandInterrupteur(bool allum
 
 ---
 
-## 10. Ce qui reste à décider ou à faire
+## 10. Modifier le décor dans Blender (`Couloir.fbx`)
+
+Fichier Blender : `La Porte/Blender/Blender 5.1.2/Couloir (réparé).blend` (le Journal y est dans le bon format).
+Fichier exporté : `Assets/Model/Couloir.fbx`, toujours **le même nom** (on l'écrase : la scène garde ses réglages).
+
+### Avant
+
+- Faire un **commit git** (ou une copie de `Assets/Model/Couloir.fbx`) : on peut toujours revenir en arrière.
+
+### Dans Blender : les règles
+
+| OK | Dangereux pour les objets qui existent déjà |
+|---|---|
+| Ajouter des objets (portes, meubles…) | **Ctrl+A (appliquer l'échelle ou la rotation)** : c'est ce qui a cassé Fan, Outlet, Alarm… |
+| Modifier la forme en Edit Mode (ex. trous dans le corridor) | **Renommer ou supprimer** `Fan`, `Fan_blade`, `Lamp`, `Outlet`, `Corridor`, `Vent_corridor`, `Journal` : Unity y accroche des choses par leur nom |
+| Changer un matériau | **Renommer** les matériaux `Light`, `Light 1`, `Light 2`, `Light 3` : les plafonniers ne changeraient plus de couleur |
+
+Déplacer un de ces objets est permis, mais ce qui y est accroché dans Unity bouge avec (Unity le signale, voir plus bas).
+
+### Les réglages d'export (préréglage « La Porte - Couloir »)
+
+**File → Export → FBX (.fbx)**, en haut à droite **Operator Presets → La Porte - Couloir**, puis enregistrer par-dessus `Assets/Model/Couloir.fbx`.
+
+Si le préréglage a disparu (autre ordi, nouvelle version de Blender) : copier `Outils/Blender/La Porte - Couloir.py` dans
+`%APPDATA%\Blender Foundation\Blender\5.1\scripts\presets\operator\export_scene.fbx\` (remplacer `5.1` par la version de Blender),
+ou cocher à la main les réglages ci-dessous. **Les 3 lignes en gras sont celles qui comptent** : les autres sont les valeurs par défaut.
+
+| Panneau | Réglage | Valeur |
+|---|---|---|
+| Include | Limit to : Selected Objects / Visible Objects / Active Collection | ☐ / ☐ / ☐ |
+| Include | **Object Types** | **Mesh seulement** (pas Empty, Camera, Lamp, Armature, Other) |
+| Include | Custom Properties | ☐ |
+| Transform | Scale | 1.00 |
+| Transform | Apply Scalings | All Local |
+| Transform | Forward / Up | -Z Forward / Y Up |
+| Transform | Apply Unit | ☑ |
+| Transform | Use Space Transform | ☑ |
+| Transform | **Apply Transform** | **☑** (marqué « expérimental » : c'est normal) |
+| Geometry | Smoothing | Normals Only |
+| Geometry | Export Subdivision Surface | ☐ |
+| Geometry | **Apply Modifiers** | **☑** |
+| Geometry | Loose Edges / Tangent Space / Triangulate Faces | ☐ / ☐ / ☐ |
+| Geometry | Vertex Colors | sRGB (Prioritize Active Color ☐) |
+| Armature | Primary / Secondary Bone Axis | Y Axis / X Axis |
+| Armature | Armature FBXNode Type | Null |
+| Armature | Only Deform Bones / Add Leaf Bones | ☐ / ☑ |
+| Bake Animation | Bake Animation | ☑ (Key All Bones ☑, NLA Strips ☑, All Actions ☑, Force Start/End Keying ☑, Sampling Rate 1.00, Simplify 1.00) |
+| Path Mode | Path Mode / Embed Textures | Auto / ☐ |
+| Batch | Batch Mode | Off |
+
+Ces réglages redonnent **exactement** le `Couloir.fbx` d'origine (vérifié objet par objet dans Unity). Avec « Apply Transform » décoché
+ou un autre « Apply Scalings », les objets dont l'échelle n'est pas 1 (Fan, Outlet, Alarm, Switch…) changent de taille ou de place dans Unity.
+
+### Dans Unity
+
+1. Cliquer dans Unity : le FBX est importé **et vérifié tout seul** (`Assets/Scripts/Editor/CouloirImport.cs`) :
+   - les lumières et caméras de Blender ne sont jamais importées (elles rendaient tout blanc);
+   - les objets dont le nom contient « reference » (ex. `Cegep corridor reference`) sont retirés;
+   - chaque objet est comparé à la référence `Assets/Model/Detaches/Couloir.reference.json`.
+2. **« ✔ Couloir.fbx conforme à la référence »** dans la Console : c'est bon.
+3. **Une fenêtre d'avertissement** (objets qui ont bougé, changé d'échelle ou disparu) :
+   - pas voulu → presque toujours les réglages d'export : réexporter avec le préréglage;
+   - voulu → menu **La Porte → Accepter Couloir.fbx comme référence**.
+4. Tester en Play, **Ctrl+S**, commit.
+
+### Si quelque chose semble cassé
+
+Menu **La Porte → Tout rebrancher (après un export du Couloir)** : vérifie le FBX, rouvre la scène **telle qu'enregistrée**
+(les changements pas enregistrés sont d'abord copiés dans `Assets/Scenes/Sauvegardes`), remet ce qui manque (caméra de la chambre,
+vent animée, étincelles, sons…), remesure les journaux, cherche les références cassées. Rapport complet dans la Console.
+
+### Ce qui ne dépend plus de Blender
+
+- **Les 5 journaux qui tombent** utilisent leur propre maillage (`Assets/Model/Detaches/Journal.asset`) : modifier le Journal dans Blender ne les change pas.
+- **La caméra de la chambre** est `Room Camera`, dans la scène (plus la caméra de Blender).
+- **La vent animée** a son propre fichier (`Vent_corridor.fbx`) et son menu (**La Porte → Brancher la vent animée**).
+- Ne pas relancer **La Porte → Brancher les journaux** sans raison : il recalcule la place des journaux à partir du Journal de Blender.
+
+---
+
+## 11. Ce qui reste à décider ou à faire
 
 - [ ] **TD** : envoyer l'interrupteur sur `/switch` (sinon, utiliser la touche **L**).
 - [ ] **TD** : recevoir le code de la partie sur `/code_attendu`, le comparer à ce qui est tapé, et envoyer `/code` **en continu** (0 / 1 / -1).
@@ -344,5 +424,5 @@ Aussi disponibles : `Sortir()`, `QuandHeurtoir()`, `QuandInterrupteur(bool allum
 - [ ] La **porte qui s'ouvre**.
 - [x] Les **sons** de Gabriel : branchés (menu **La Porte → Brancher les sons**, section 7).
 - [ ] **Gabriel** : les sons qui manquent, `bon-code`, `mauvais-code`, `porte-ouverte` (et, si on veut, la poignée et la corde des têtes).
-- [ ] Choisir la caméra de la pièce : `Camera Room` (du modèle Blender) ou `Room Camera`.
+- [x] La caméra de la pièce : `Room Camera` (dans la scène), avec les réglages de l'ancienne `Camera Room` de Blender (section 10).
 - [ ] Une **serrure électrique**? Si oui, donner l'adresse OSC.

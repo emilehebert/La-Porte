@@ -25,6 +25,12 @@ public class EtapeEnigmeCouleurs : Etape
              "Dès le premier coup de heurtoir, l'indice s'arrête pour toute l'étape (le visiteur a compris). 0 = jamais.")]
     public float secondesAvantIndice = 6f;
 
+    [Header("Après l'énigme")]
+    [Tooltip("Une fois la combinaison réussie (ou l'étape sautée), la lampe prend cette couleur et la GARDE :\n" +
+             "le heurtoir la fait encore trembler, mais ne change plus sa couleur. Le nom dans ReglagesJeu → Couleurs Lampe.\n" +
+             "Vide = la lampe continue de changer de couleur.")]
+    public string couleurApresReussite = "Mauve";
+
     [Header("Sons (optionnels)")]
     public AudioSource sonBonneCouleur;
     [Tooltip("Erreur au 1er choix de la combinaison.")]
@@ -98,6 +104,7 @@ public class EtapeEnigmeCouleurs : Etape
             {
                 JouerSon(sonReussite);
                 lampe.Clignoter(4, 0.1f);
+                FixerLaCouleur();
                 Terminer();
             }
             else
@@ -113,6 +120,17 @@ public class EtapeEnigmeCouleurs : Etape
             JouerSon(perdSaProgression && sonMauvaiseCombinaison != null ? sonMauvaiseCombinaison : sonMauvaiseCouleur);
             lampe.Clignoter(3, 0.1f);
         }
+    }
+
+    /// <summary>On saute l'énigme : la lampe prend tout de suite sa couleur finale.</summary>
+    public override void AppliquerEtatFinal()
+    {
+        FixerLaCouleur();
+    }
+
+    void FixerLaCouleur()
+    {
+        if (lampe != null && !string.IsNullOrEmpty(couleurApresReussite)) lampe.FixerCouleur(couleurApresReussite);
     }
 
     public override string InfoOperateur()

@@ -52,6 +52,9 @@ public class LampeSurPied : MonoBehaviour
     public bool EstAllumee => Capteurs.InterrupteurAllume;
     public bool AnimationEnCours => routineAnimation != null;
 
+    /// <summary>Vrai quand la couleur est fixée (après l'énigme) : le heurtoir ne la change plus.</summary>
+    public bool CouleurFixee { get; private set; }
+
     float intensiteNormale;
     float niveau;                 // 0 = éteinte, 1 = allumée; glisse vers ce que l'interrupteur demande (le fondu)
     bool cacheeParClignotement;   // la sonnette fait clignoter la lampe : éteinte d'un coup, un court instant
@@ -159,10 +162,31 @@ public class LampeSurPied : MonoBehaviour
         if (animerAChaqueCoup) JouerAnimation(scintillerSiEteinte && !EstAllumee);
 
         if (!EstAllumee) return;   // condition du document : la couleur ne change que si la lampe est allumée
+        if (CouleurFixee) return;   // après l'énigme : la lampe tremble encore, mais garde sa couleur
 
         int nombreDeCouleurs = ReglagesJeu.Instance.couleursLampe.Length;
         IndexCouleur = (IndexCouleur + 1) % nombreDeCouleurs;
         Afficher();
+    }
+
+    /// <summary>
+    /// La lampe prend cette couleur (son nom dans ReglagesJeu → Couleurs Lampe, ex. « Mauve ») et la garde
+    /// pour le reste de la partie : le heurtoir la fait encore trembler, mais ne change plus sa couleur.
+    /// Le rechargement de la scène (recommencer) la libère.
+    /// </summary>
+    public void FixerCouleur(string nom)
+    {
+        CouleurNommee[] couleurs = ReglagesJeu.Instance.couleursLampe;
+        for (int i = 0; i < couleurs.Length; i++)
+        {
+            if (!string.Equals(couleurs[i].nom, nom, System.StringComparison.OrdinalIgnoreCase)) continue;
+
+            IndexCouleur = i;
+            CouleurFixee = true;
+            Afficher();
+            return;
+        }
+        Debug.LogWarning($"[LampeSurPied] Pas de couleur « {nom} » dans ReglagesJeu → Couleurs Lampe : la couleur n'est pas fixée.");
     }
 
     /// <summary>La lumière ET l'ampoule, toujours ensemble : la couleur de la lampe, à la force du moment (fondu).</summary>

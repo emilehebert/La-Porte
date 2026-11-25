@@ -97,6 +97,7 @@ La lampe sur pied commence sur la **première couleur qui ne fait pas partie de 
 - **Bonne couleur** : la lampe clignote 1 fois + bip aigu.
 - **Mauvaise couleur** : la lampe clignote 3 fois + bip grave, et on recommence la combinaison **depuis la première couleur**.
 - **Combinaison réussie** : la lampe clignote 4 fois vite + 3 bips qui montent → étape 2.
+- **Après l'énigme** (réussie ou sautée) : la lampe devient **mauve** et le reste pour toute la partie. Le heurtoir la fait encore trembler, mais ne change plus sa couleur. Réglage *Couleur Apres Reussite* sur `1 - Énigme des couleurs` (vide = la lampe continue de changer).
 - **Sonnette avec la lampe éteinte** : ne compte pas.
 - **Indice** : si personne ne cogne ni ne sonne pendant **6 s**, la lampe tremble pour attirer l'œil, et ça recommence toutes les 6 s. **Dès le premier coup de heurtoir de l'étape, l'indice s'arrête pour de bon** (le visiteur a compris). Réglages sur `1 - Énigme des couleurs` : décocher *Indice Actif* pour ne jamais avoir l'indice; *Secondes Avant Indice* pour le délai.
 

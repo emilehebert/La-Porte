@@ -60,6 +60,25 @@ public class Capteurs : MonoBehaviour
     public static event Action<bool> CodeNumpad;     // true = bon code, false = mauvais code
 
 
+    // ---------- La pause (écran titre) ----------
+
+    /// <summary>
+    /// true pendant l'écran titre, jusqu'à la fin du fondu (c'est EcranTitre qui le met).
+    /// Les objets ne réagissent plus : aucun événement normal (lumières, lampe, étincelles, sons, étapes),
+    /// la poignée reste droite et l'interrupteur ne change pas de mode (le jeu reste en mode lumières).
+    /// Seuls SonnetteEnPause et InterrupteurEnPause sont envoyés, pour l'écran titre.
+    /// </summary>
+    public static bool EnPause { get; private set; }
+
+    public static event Action SonnetteEnPause;
+    public static event Action InterrupteurEnPause;
+
+    public static void MettreEnPause(bool pause)
+    {
+        EnPause = pause;
+    }
+
+
     // ---------- L'état actuel du matériel ----------
     // « static » : ces valeurs survivent au rechargement de la scène quand on saute à une étape
     // ou qu'on rejoue une étape. Quand l'expérience RECOMMENCE AU DÉBUT, RemettreAZero() les remet au repos.
@@ -141,11 +160,13 @@ public class Capteurs : MonoBehaviour
     public static void DeclencherSonnette()
     {
         NoterContact();
+        if (EnPause) { SonnetteEnPause?.Invoke(); return; }
         Sonnette?.Invoke();
     }
 
     public static void DeclencherHeurtoir()
     {
+        if (EnPause) return;
         NoterContact();
         Heurtoir?.Invoke();
     }
@@ -158,6 +179,16 @@ public class Capteurs : MonoBehaviour
     {
         if (positionPhysique == positionLevee) return;   // l'interrupteur n'a pas bougé
         positionPhysique = positionLevee;
+
+        if (EnPause)
+        {
+            // Le mode ne change pas (mode lumières) : la position actuelle devient celle du mode lumières,
+            // et la prochaine bascule après la pause passera en mode couleurs.
+            modeInverse = positionLevee != InterrupteurAllume;
+            NoterContact();
+            InterrupteurEnPause?.Invoke();
+            return;
+        }
 
         bool mode = positionLevee != modeInverse;
         if (mode == InterrupteurAllume) return;   // déjà dans ce mode
@@ -190,12 +221,14 @@ public class Capteurs : MonoBehaviour
     /// <summary>Un code a été entré sur le numpad. TouchDesigner a déjà vérifié s'il est bon.</summary>
     public static void EntrerCodeNumpad(bool bonCode)
     {
+        if (EnPause) return;
         NoterContact();
         CodeNumpad?.Invoke(bonCode);
     }
 
     public static void ChangerPoignee(float angle)
     {
+        if (EnPause) return;   // la poignée reste droite tant que l'écran titre est là
         angle = Mathf.Clamp(angle, -1f, 1f);
 
         float seuil = instance != null ? instance.seuilBruitPoignee : 0.02f;

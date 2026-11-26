@@ -57,6 +57,11 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Key
+    second: {fileID: 2100000, guid: 9d36c095039fe5945beaf5b6dd294ec0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Lamp
     second: {fileID: 2100000, guid: 7f495c36f44f52147a3b5f0ac13ff27d, type: 2}
   - first:

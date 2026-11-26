@@ -54,6 +54,9 @@ public class TetesQuiTombent : MonoBehaviour
     [Tooltip("Épaisseur de la corde (mètres). Trop fine, elle disparaît avec la basse résolution PS1.")]
     public float epaisseurCorde = 0.03f;
 
+    [Tooltip("Combien de fois la texture de la corde se répète par mètre. 0 = automatique (une répétition toutes les 6 épaisseurs). Plus petit = motif plus grand.")]
+    public float repetitionsCordeParMetre = 0f;
+
     [Tooltip("Matériau de la corde. Vide = Resources/CordeTete.")]
     public Material materiauCorde;
 
@@ -314,10 +317,23 @@ public class TetesQuiTombent : MonoBehaviour
         ligne.positionCount = 2;
         ligne.widthMultiplier = epaisseurCorde;
         ligne.sharedMaterial = materiauCorde;
+        RepeterTexture(ligne, epaisseurCorde, repetitionsCordeParMetre);
         ligne.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         ligne.receiveShadows = false;
         ligne.enabled = false;   // apparaît avec sa tête
         return ligne;
+    }
+
+    /// <summary>
+    /// La texture de la corde se répète le long de la ligne au lieu d'être étirée.
+    /// 0 répétition par mètre = automatique : une répétition toutes les 6 épaisseurs de corde (motif bien visible).
+    /// La texture doit être en Wrap Mode « Repeat ».
+    /// </summary>
+    public static void RepeterTexture(LineRenderer ligne, float epaisseur, float repetitionsParMetre)
+    {
+        float parMetre = repetitionsParMetre > 0f ? repetitionsParMetre : 1f / (6f * Mathf.Max(epaisseur, 0.001f));
+        ligne.textureMode = LineTextureMode.Tile;
+        ligne.textureScale = new Vector2(parMetre, 1f);
     }
 
     /// <summary>La boîte (dans le monde) qui contient tous les morceaux visibles de la tête (visage, cheveux, lunettes...).</summary>

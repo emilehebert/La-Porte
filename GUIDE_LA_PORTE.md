@@ -24,9 +24,10 @@ Dans l'éditeur, choisir *Display 1* (la pièce) ou *Display 2* (le corridor) en
 5. Menu **La Porte → Brancher les journaux** (voir section 8, « Les journaux »).
 6. Menu **La Porte → Ajouter les étincelles à la prise** (voir section 3).
 7. Menu **La Porte → Brancher les sons** (voir section 7, « Le son »).
-8. Ctrl+S.
+8. Menu **La Porte → Ajouter le reflet sur la clé** (voir section 3, « Le reflet de la clé »).
+9. Ctrl+S.
 
-Ces menus ne font rien si la scène contient déjà ce qu'ils ajoutent (`Jeu`, `Placeholders (à remplacer)`, `EtincellesPrise`).
+Ces menus ne font rien si la scène contient déjà ce qu'ils ajoutent (`Jeu`, `Placeholders (à remplacer)`, `EtincellesPrise`, le reflet de la clé).
 
 ---
 
@@ -48,6 +49,7 @@ light rightside          CopyLightIntensity : copie l'intensité de light 3
 Light (la lampe sur pied)           LampeSurPied
 Point Light (7)          LumiereInterrupteur (Inverser coché)
 Étincelles de la prise   Particle System + EtincellesPrise (devant « Outlet »)
+Reflet (Key)             RefletIndice : le petit reflet qui flashe sur la clé (suit « Key »)
 Room Camera              Display 1 : la pièce (VISITEUR)
 Corridor Camera          Display 2 : le corridor (LOCATAIRE)
 Placeholders (à remplacer)          bips seulement (plus de texte : menu « Retirer les textes placeholder »)
@@ -64,10 +66,10 @@ Sons                     ReglagesSons · SonsInteractions, avec un enfant par pi
 
 | | Rôle | Scripts |
 |---|---|---|
-| **Mécaniques** | Réagissent **toujours** aux objets, peu importe l'étape. | `LumieresCorridor`, `LampeSurPied`, `LumiereInterrupteur`, `JournalPersonnages`, `CopyLightIntensity`, `EtincellesPrise`, `SonsInteractions`, `AmbianceContinue` |
+| **Mécaniques** | Réagissent **toujours** aux objets, peu importe l'étape. | `LumieresCorridor`, `LampeSurPied`, `LumiereInterrupteur`, `JournalPersonnages`, `CopyLightIntensity`, `EtincellesPrise`, `SonsInteractions`, `AmbianceContinue`, `RefletIndice` |
 | **Étapes** | Une seule active à la fois. Elles vérifient si l'énigme est réussie. | `EtapeAttente`, `EtapeEnigmeCouleurs`, `EtapeTimeline`, `EtapeCodeNumpad`, `EtapeFin` |
 
-Comme dans une escape room : les objets répondent tout le temps, et le « maître du jeu » (`GestionnaireEtapes`) surveille la progression.
+Comme dans une escape room : les objets répondent tout le temps, et le « maître du jeu » (`GestionnaireEtapes`) surveille la progression. **Seule exception : l'écran titre** (étape 0, section 4) met les objets en pause jusqu'à ce que la scène soit entièrement visible.
 
 ### Ce que font les mécaniques (à toutes les étapes)
 
@@ -80,17 +82,65 @@ Comme dans une escape room : les objets répondent tout le temps, et le « maît
 
 La lampe sur pied commence sur la **première couleur qui ne fait pas partie de la solution** (avec les réglages actuels : Jaune). On ne peut donc pas réussir le 1er choix par hasard en sonnant tout de suite.
 
+### Le reflet de la clé
+
+Une **étoile lumineuse** flashe sur la clé (`Key`) pour attirer l'œil du visiteur, **sans fin** (elle attend seulement la fin de l'écran titre).
+
+1. Menu **La Porte → Ajouter le reflet sur la clé**, puis Ctrl+S.
+2. Déplacer l'objet `Reflet (Key)` à l'endroit voulu sur la clé (l'étoile jaune dans la vue Scene).
+
+Réglages sur `Reflet (Key)` :
+
+| Réglage | Effet |
+|---|---|
+| Actif | Décoché : plus de flashs |
+| Vitesse | 1 = normal, 2 = deux fois plus rapide, 0,5 = deux fois plus lent |
+| Repetitions | Nombre de flashs à la suite (1 = « tching », 2 = « tching-tching ») |
+| Intervalle | Secondes entre deux séries de flashs |
+| Taille Etoile | La taille de l'étoile en mètres (0,35 par défaut) |
+| Couleur / Brillance | La couleur, et à quel point elle éclate (5 par défaut, jusqu'à 10) |
+
+**Tester** : Play, **Page Down** (passe l'écran titre), regarder *Display 1* : premier flash après 1,5 s. Pour un flash tout de suite : clic droit sur le titre du composant → **Flasher maintenant**.
+
 ---
 
 ## 4. Comment se joue l'expérience
 
 | # | Étape | Ce qui se passe | On passe à la suite quand… | Si l'opérateur saute l'étape |
 |---|---|---|---|---|
-| 0 | Attente des joueurs | Tout est remis à neuf. Les mécaniques marchent déjà. | Premier contact : sonnette, heurtoir, interrupteur (qui change d'état) ou numpad. Ou Page Down. (La poignée ne démarre pas l'expérience.) | — |
+| 0 | Attente des joueurs | Tout est remis à neuf. **Écran titre** sur les deux écrans (voir plus bas). **Les objets sont en pause** jusqu'à la fin du fondu : rien ne change dans le décor, aucun son d'objet. | Le locataire **bascule l'interrupteur** et le visiteur **sonne**, **en même temps** (moins de 1,5 s d'écart, peu importe qui commence). Ou Page Down. Les deux écrans font alors un fondu vers la scène. | — |
 | 1 | Énigme des couleurs | **Locataire** : interrupteur → révèle l'ordre des couleurs et allume la lampe; poignée → promène la zone éclairée pour voir chaque couleur. **Visiteur** : heurtoir → couleur suivante; sonnette → sélectionne la couleur affichée (seulement si la lampe est allumée). | Les 3 couleurs sont sélectionnées dans l'ordre : **Bleu → Vert → Rouge**. | Rien à remettre |
 | 2 | Indices | Timeline `Indices` (2,1 s) : le jeu passe en **mode lumières** et y reste (plafond allumé, lampe éteinte, corridor en blanc), même si l'interrupteur est encore levé; **2 têtes choisies au hasard** parmi les 5 tombent de la ventilation du corridor, l'une après l'autre, dans un ordre au hasard, et restent pendues à une corde élastique (le heurtoir les fait bouger); **en même temps**, le journal de chaque tête tombe de la bibliothèque sur la table de la pièce (JournauxQuiTombent). | La Timeline est finie | La Timeline est mise à sa dernière image (têtes pendues, journaux sur la table) |
 | 3 | Code du numpad | Le locataire décrit les têtes, dans l'ordre où elles sont tombées. Le visiteur trouve leurs numéros sur les journaux tombés : à la lumière il reconnaît les visages, dans le noir (interrupteur levé) il lit le numéro phosphorescent peint sur chaque visage. Il entre le code. **Le code change à chaque partie** : Unity l'envoie à TouchDesigner, qui le vérifie. Aucun texte n'est affiché : seulement des bips (bon / mauvais code). | TouchDesigner envoie « bon code » | Rien à remettre |
 | 4 | Porte ouverte | Bips de fin (pas de texte; mettre les vrais objets ou une Timeline de fin sur l'étape). Envoi OSC de la serrure si une adresse est remplie (vide pour l'instant). | Après **30 s**, l'expérience recommence au début | — |
+
+### L'écran titre (étape 0)
+
+- **Sur les deux écrans** : fond noir, le **logo** au centre qui grossit et rapetisse comme un **cœur qui bat lentement** (boum-boum… pause), et en bas le texte « Appuyez sur l'interrupteur et interagissez avec la sonnette en même temps pour commencer l'expérience ».
+- **Les objets sont en pause** tant que l'écran titre est là, **fondu compris** (jusqu'à ce que la scène soit entièrement visible) : l'interrupteur ne change pas les lumières ni la lampe, la sonnette ne fait pas d'étincelles, le heurtoir ne fait pas trembler la lampe, la poignée et le numpad ne font rien, et **aucun son d'objet** ne joue (les ambiances continuent). Les joueurs découvrent donc toujours la scène dans son état de départ : **mode lumières**, lampe éteinte, poignée droite. La bascule de l'interrupteur faite pour démarrer ne compte pas : la **prochaine** bascule passera en mode couleurs.
+- **Un seul joueur agit** : le logo fait un battement plus fort (« ça a compté, il manque l'autre »).
+- **Les deux ensemble** : les deux écrans font un **fondu** de 2,5 s vers la scène, et l'étape 1 commence. Les objets se réveillent à la fin du fondu.
+- **Page Down** : même fondu. **Sauter directement à une autre étape** (liste du F1, F5 sur une autre étape) : pas d'écran titre.
+- Il revient tout seul à chaque retour au début (fin de l'expérience, Ctrl+R, retour automatique).
+- Au clavier : **L** puis **S** (moins de 1,5 s entre les deux).
+
+**Le logo** : mettre le fichier dans **`Assets/Resources/Logo.png`** (PNG avec transparence) : il est trouvé tout seul. Ou le glisser dans *Ecran Titre → Logo* sur `0 - Attente des joueurs`. Sans logo, l'écran affiche « LA PORTE » en texte.
+
+Réglages sur `Jeu → 0 - Attente des joueurs` :
+
+| Réglage | Effet |
+|---|---|
+| Demarrer Au Premier Contact | Décoché : seul l'opérateur peut démarrer (Page Down) |
+| Fenetre Secondes | L'écart maximum entre l'interrupteur et la sonnette pour que ça compte « en même temps » (1,5 s) |
+| Afficher Ecran Titre | Décoché : pas d'écran titre ni de pause (la scène est visible pendant l'attente et les objets y réagissent; au démarrage, le jeu revient en mode lumières) |
+| Ecran Titre → Logo / Taille Logo | Le logo, et sa hauteur en % de l'écran |
+| Ecran Titre → Texte / Taille Texte / Couleur Texte | Le petit texte en bas |
+| Ecran Titre → Battements Par Minute | 40 = lent (par défaut). Plus haut = plus rapide |
+| Ecran Titre → Amplitude | De combien le logo grossit (0,08 = 8 %) |
+| Ecran Titre → Double Battement | Décoché : un seul gonflement doux au lieu du « boum-boum » |
+| Ecran Titre → Duree Fondu | La durée du fondu vers la scène (secondes) |
+
+L'écran titre est créé par le script (`EcranTitre`) : **il n'y a rien à mettre dans la scène**. Il se dessine par-dessus les deux caméras (un Canvas par Display). Le panneau F1 reste visible par-dessus, et dit « Objets en pause » pendant la pause. La pause est dans `Capteurs` (`Capteurs.EnPause`) : un nouveau script d'objet qui écoute `Capteurs` est donc en pause tout seul.
 
 ### Détails de l'énigme des couleurs (étape 1)
 
@@ -162,6 +212,7 @@ Les adresses, les anti-rebonds et le seuil de bruit de la poignée se changent d
 | **S** | Simuler la sonnette |
 | **H** | Simuler le heurtoir |
 | **L** | Basculer l'interrupteur (mode lumières ↔ mode couleurs) |
+| **L** puis **S** | Démarrer l'expérience depuis l'écran titre (interrupteur + sonnette ensemble) |
 | **← →** | Tourner la poignée |
 | **B** | Simuler un bon code au numpad |
 | **M** | Simuler un mauvais code au numpad |
@@ -426,3 +477,5 @@ vent animée, étincelles, sons…), remesure les journaux, cherche les référe
 - [ ] **Gabriel** : les sons qui manquent, `bon-code`, `mauvais-code`, `porte-ouverte` (et, si on veut, la poignée et la corde des têtes).
 - [x] La caméra de la pièce : `Room Camera` (dans la scène), avec les réglages de l'ancienne `Camera Room` de Blender (section 10).
 - [ ] Une **serrure électrique**? Si oui, donner l'adresse OSC.
+- [x] L'**écran titre** (logo qui bat, interrupteur + sonnette ensemble pour commencer, fondu sur les deux écrans).
+- [ ] Le **logo** : le mettre dans `Assets/Resources/Logo.png` (pour l'instant, l'écran titre affiche « LA PORTE » en texte).
